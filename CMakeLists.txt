@@ -1,8 +1,8 @@
 
 cmake_minimum_required(VERSION 3.12)
-project(RealTimeParticles VERSION 1.0
+project(Murmuration VERSION 0.1
                           DESCRIPTION "Minimalist real-time 3D particle system simulator"
-                          HOMEPAGE_URL "https://github.com/axoloto/RealTimeParticles")
+                          HOMEPAGE_URL "https://github.com/axoloto/Murmuration")
 
 message(STATUS "Version Major ${PROJECT_VERSION_MAJOR}")
 message(STATUS "Version Minor ${PROJECT_VERSION_MINOR}")

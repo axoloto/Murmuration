@@ -9,7 +9,8 @@ class Conanfile(ConanFile):
                 "opencl-headers/[>=2021.04.29]",
                 "opencl-icd-loader/[>=2021.04.29]",
                 "spdlog/[>=1.4.1]",
-                "imgui/[>=1.79]"
+                "imgui/[>=1.79]",
+                "rtmidi/[>=4.0.0]"
                 ]
     settings = "os", "compiler", "arch", "build_type"
     exports = "*"
