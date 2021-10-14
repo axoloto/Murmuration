@@ -279,9 +279,9 @@ bool ParticleSystemApp::initPhysicsEngine()
   case Physics::ModelType::BOIDS:
     m_physicsEngine = std::make_unique<Physics::Boids>(params);
     break;
-  case Physics::ModelType::FLUIDS:
-    m_physicsEngine = std::make_unique<Physics::Fluids>(params);
-    break;
+    //case Physics::ModelType::FLUIDS:
+    //  m_physicsEngine = std::make_unique<Physics::Fluids>(params);
+    //  break;
   }
 
   return (m_physicsEngine.get() != nullptr);
@@ -368,6 +368,7 @@ void ParticleSystemApp::displayMainWidget()
   if (!isInit())
     return;
 
+  /*
   // Selection of the physical model
   const auto& selModelName = (Physics::ALL_MODELS.find(m_modelType) != Physics::ALL_MODELS.end())
       ? Physics::ALL_MODELS.find(m_modelType)->second
@@ -398,6 +399,7 @@ void ParticleSystemApp::displayMainWidget()
     }
     ImGui::EndCombo();
   }
+*/
 
   bool isOnPaused = m_physicsEngine->onPause();
   std::string pauseRun = isOnPaused ? "  Start  " : "  Pause  ";
