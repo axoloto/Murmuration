@@ -5,6 +5,13 @@ docs/doxyoutput_intern/
 *.vcxproj
 *.filters
 *.sln
+*.user
+*.dir
+*.htm
+	
+lib/
+bin/
+x64/
 
 CmakeBuild/
 CMakeFiles/

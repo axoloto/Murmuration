@@ -1,7 +1,7 @@
 #include "PhysicsWidget.hpp"
 #include "Logging.hpp"
 #include "Parameters.hpp"
-
+#include "RtMidi.h"
 #include <imgui.h>
 
 void UI::PhysicsWidget::display()
@@ -13,7 +13,10 @@ void UI::PhysicsWidget::display()
   ImGui::SetNextWindowPos(ImVec2(15, 355), ImGuiCond_FirstUseEver);
 
   if (boidsEngine)
+  {
     displayBoidsParameters(boidsEngine);
+    LOG_DEBUG("Started Boidssssss");
+  }
   else if (fluidsEngine)
     displayFluidsParameters(fluidsEngine);
 }

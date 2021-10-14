@@ -6,6 +6,8 @@
 #include <glad/glad.h>
 #include <memory>
 #include <vector>
+#include "cmidiin.h"
+
 
 namespace Render
 {
@@ -76,6 +78,8 @@ class Engine
   inline GLuint cameraCoordVBO() const { return m_cameraVBO; }
   inline GLuint gridDetectorVBO() const { return m_gridDetectorVBO; }
 
+  
+
   private:
   void buildShaders();
 
@@ -101,6 +105,9 @@ class Engine
   const GLuint m_gridPosAttribIndex { 3 };
   const GLuint m_gridDetectorAttribIndex { 4 };
   const GLuint m_targetPosAttribIndex { 5 };
+
+  //Cmidiin midiReader;
+  //std::thread midi_thread;
 
   GLuint m_VAO;
   GLuint m_pointCloudCoordVBO, m_pointCloudColorVBO;
