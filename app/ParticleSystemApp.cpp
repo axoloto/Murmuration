@@ -180,8 +180,8 @@ bool ParticleSystemApp::checkSDLStatus()
     }
     case SDL_KEYDOWN:
     {
-      // WIP, only for testing, use num pad enter
-      if (event.key.keysym.scancode == SDL_SCANCODE_KP_ENTER)
+      // WIP, only for testing, use Left Alt Touch keyboard
+      if (event.key.keysym.scancode == SDL_SCANCODE_LALT)
       {
         size_t number = 64;
         Math::float3 pos = Math::float3(0.0f, 0.0f, 0.0f);

@@ -38,6 +38,7 @@ using namespace Physics;
 #define KERNEL_BOIDS_RULES_GRID_2D "applyBoidsRulesWithGrid2D"
 #define KERNEL_BOIDS_RULES_GRID_3D "applyBoidsRulesWithGrid3D"
 #define KERNEL_ADD_TARGET_RULE "addTargetRule"
+#define KERNEL_UPDATE_LIFE_TIME "updateLifeTime"
 
 Boids::Boids(ModelParams params)
     : Model(params)
@@ -96,6 +97,7 @@ bool Boids::createBuffers() const
   clContext.createBuffer("p_acc", 4 * m_maxNbParticles * sizeof(float), CL_MEM_READ_WRITE);
   clContext.createBuffer("p_cellID", m_maxNbParticles * sizeof(unsigned int), CL_MEM_READ_WRITE);
   clContext.createBuffer("p_cameraDist", m_maxNbParticles * sizeof(unsigned int), CL_MEM_READ_WRITE);
+  clContext.createBuffer("p_lifeTime", m_maxNbParticles * sizeof(int), CL_MEM_READ_WRITE);
 
   clContext.createBuffer("c_startEndPartID", 2 * m_nbCells * sizeof(unsigned int), CL_MEM_READ_WRITE);
 
@@ -121,6 +123,7 @@ bool Boids::createKernels() const
   clContext.createKernel(PROGRAM_BOIDS, KERNEL_UPDATE_VEL, { "p_acc", "", "", "p_vel" });
   clContext.createKernel(PROGRAM_BOIDS, KERNEL_UPDATE_POS_BOUNCING, { "p_vel", "", "p_pos" });
   clContext.createKernel(PROGRAM_BOIDS, KERNEL_UPDATE_POS_CYCLIC, { "p_vel", "", "p_pos" });
+  clContext.createKernel(PROGRAM_BOIDS, KERNEL_UPDATE_LIFE_TIME, { "p_lifeTime", "p_pos" });
 
   // Radix Sort based on 3D grid
   clContext.createKernel(PROGRAM_BOIDS, KERNEL_RESET_CELL_ID, { "p_cellID" });
@@ -215,6 +218,9 @@ void Boids::initBoidsParticles()
 
   clContext.loadBufferFromHost("p_col", 0, 4 * sizeof(float) * buffer.size(), buffer.data());
 
+  std::vector<int> lifeTime(m_maxNbParticles, -1);
+  clContext.loadBufferFromHost("p_lifeTime", 0, sizeof(int) * lifeTime.size(), lifeTime.data());
+
   clContext.releaseGLBuffers({ "p_pos", "p_col" });
 }
 
@@ -242,6 +248,9 @@ void Boids::emitParticles()
         [](const Math::float3& vertCol) -> std::array<float, 4> { return { vertCol.x, vertCol.y, vertCol.z, 0.0f }; });
 
     clContext.loadBufferFromHost("p_col", 4 * sizeof(float) * m_currNbParticles, 4 * sizeof(float) * tempBuffer.size(), tempBuffer.data());
+
+    std::vector<int> lifeTime(nbNewParticles, 500);
+    clContext.loadBufferFromHost("p_lifeTime", sizeof(int) * m_currNbParticles, sizeof(int) * lifeTime.size(), lifeTime.data());
 
     m_currNbParticles += nbNewParticles;
   }
@@ -306,6 +315,9 @@ void Boids::update()
     clContext.runKernel(KERNEL_RESET_PART_DETECTOR, m_nbCells);
     clContext.runKernel(KERNEL_FILL_PART_DETECTOR, m_currNbParticles);
   }
+
+  // WIP, not working yet
+  //clContext.runKernel(KERNEL_UPDATE_LIFE_TIME, m_currNbParticles);
 
   clContext.runKernel(KERNEL_FILL_CAMERA_DIST, m_currNbParticles);
 
