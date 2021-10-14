@@ -332,6 +332,26 @@ __kernel void updatePosWithCyclicWalls(//Input
   pos[ID] = clampedNewPos;
 }
 
+/*
+  Apply Cyclic wall boundary conditions on position and velocity buffers.
+*/
+__kernel void updateLifeTime(//Input/Output
+                             __global int *lifeTime, // 0
+                             //Output
+                             __global float4 *pos)   // 1
+{
+  const int life = lifeTime[ID];
+
+  if (life < 0)
+  {
+    pos[ID] = (float4)(1000000.0f, 100000.0f, 100000.0f, 1.0f);
+  }
+  else
+  {
+    lifeTime[ID] -= 1;
+  }
+}
+
 //
 //
 //

@@ -151,28 +151,8 @@ void UI::PhysicsWidget::displayBoidsParameters(Physics::Boids* boidsEngine)
 
   ImGui::Spacing();
   ImGui::Separator();
-  ImGui::Text("Particles");
-  ImGui::Spacing();
 
-  // Selection of the number of particles in the model
-  const auto nbParticles = (Utils::NbParticles)m_physicsEngine->nbParticles();
-
-  const auto& nbParticlesStr = (Utils::ALL_NB_PARTICLES.find(nbParticles) != Utils::ALL_NB_PARTICLES.end())
-      ? Utils::ALL_NB_PARTICLES.find(nbParticles)->second.name
-      : Utils::ALL_NB_PARTICLES.cbegin()->second.name;
-
-  if (ImGui::BeginCombo("##particles", nbParticlesStr.c_str()))
-  {
-    for (const auto& nbParticlesPair : Utils::ALL_NB_PARTICLES)
-    {
-      if (ImGui::Selectable(nbParticlesPair.second.name.c_str(), nbParticles == nbParticlesPair.first))
-      {
-        boidsEngine->setNbParticles(nbParticlesPair.first);
-        boidsEngine->reset();
-      }
-    }
-    ImGui::EndCombo();
-  }
+  ImGui::Value("Particles", (int)boidsEngine->nbParticles());
 
   ImGui::Spacing();
   ImGui::Separator();
