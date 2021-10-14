@@ -12,6 +12,8 @@ namespace Utils
 // List of supported particles system sizes
 enum NbParticles
 {
+  P0 = 0,
+  P64 = 1 << 6,
   P512 = 1 << 9,
   P1K = 1 << 10,
   P4K = 1 << 12,
@@ -36,6 +38,7 @@ struct NbParticlesInfo
 };
 
 static const std::map<NbParticles, NbParticlesInfo, CompareNbParticles> ALL_NB_PARTICLES {
+  { NbParticles::P64, { "64", { 8, 8 }, { 4, 4, 4 } } },
   { NbParticles::P512, { "512", { 32, 16 }, { 8, 8, 8 } } },
   { NbParticles::P1K, { "1k", { 32, 32 }, { 16, 8, 8 } } },
   { NbParticles::P4K, { "4k", { 64, 64 }, { 16, 16, 16 } } },

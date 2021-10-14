@@ -1,46 +1,17 @@
 #pragma once
 
 #include "Math.hpp"
+#include "ParticleEmitter.hpp"
 #include "ocl/Context.hpp"
+#include "utils/Define.hpp"
 
 #include <array>
+#include <list>
 #include <map>
 #include <string>
 
 namespace Physics
 {
-// List of supported physical models
-enum ModelType
-{
-  BOIDS = 0,
-  FLUIDS = 1
-};
-
-struct CompareModelType
-{
-  bool operator()(const ModelType& modelA, const ModelType& modelB) const
-  {
-    return (int)modelA < (int)modelB;
-  }
-};
-
-static const std::map<ModelType, std::string, CompareModelType> ALL_MODELS {
-  { ModelType::BOIDS, "Boids" }, // Craig Reynolds laws
-  { ModelType::FLUIDS, "Fluids" }, // Position Based Fluids by NVIDIA team (Macklin and Muller)
-};
-
-enum class Dimension
-{
-  dim2D,
-  dim3D
-};
-
-enum class Boundary
-{
-  BouncingWall,
-  CyclicWall
-};
-
 struct ModelParams
 {
   size_t currNbParticles = 0;
@@ -77,6 +48,13 @@ class Model
   {
     CL::Context::Get().release();
   };
+
+  void addParticleEmitter(size_t nbParts, const Math::float3& origin, const Math::float3& col)
+  {
+    m_particleEmitters.push_back(ParticleEmitter(m_dimension, nbParts, origin, col));
+  }
+
+  void clearParticleEmitterList() { m_particleEmitters.clear(); }
 
   size_t maxNbParticles() const { return m_maxNbParticles; }
 
@@ -128,6 +106,8 @@ class Model
   Dimension m_dimension;
 
   Boundary m_boundary;
+
+  std::list<ParticleEmitter> m_particleEmitters;
 
   // Gate to graphics
   unsigned int m_particlePosVBO;

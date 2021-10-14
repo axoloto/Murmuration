@@ -52,7 +52,7 @@ Boids::Boids(ModelParams params)
     , m_radixSort(params.maxNbParticles)
     , m_target(std::make_unique<Target>(params.boxSize))
 {
-  m_currNbParticles = Utils::NbParticles::P512;
+  m_currNbParticles = Utils::NbParticles::P0;
 
   createProgram();
 
@@ -172,6 +172,8 @@ void Boids::reset()
   if (!m_init)
     return;
 
+  m_currNbParticles = Utils::NbParticles::P0;
+
   updateBoidsParamsInKernel();
 
   CL::Context& clContext = CL::Context::Get();
@@ -200,40 +202,51 @@ void Boids::initBoidsParticles()
 
   CL::Context& clContext = CL::Context::Get();
 
-  clContext.acquireGLBuffers({ "p_pos" });
-
-  std::vector<Math::float3> gridVerts;
-
-  if (m_dimension == Dimension::dim2D)
-  {
-    const auto& subdiv2D = Utils::GetNbParticlesSubdiv2D((Utils::NbParticles)m_currNbParticles);
-    Math::int2 grid2DRes = { subdiv2D[0], subdiv2D[1] };
-    Math::float3 start2D = { 0.0f, m_boxSize / -6.0f, m_boxSize / -6.0f };
-    Math::float3 end2D = { 0.0f, m_boxSize / 6.0f, m_boxSize / 6.0f };
-
-    gridVerts = Geometry::Generate2DGrid(Geometry::Shape2D::Circle, Geometry::Plane::YZ, grid2DRes, start2D, end2D);
-  }
-  else if (m_dimension == Dimension::dim3D)
-  {
-    const auto& subdiv3D = Utils::GetNbParticlesSubdiv3D((Utils::NbParticles)m_currNbParticles);
-    Math::int3 grid3DRes = { subdiv3D[0], subdiv3D[1], subdiv3D[2] };
-    Math::float3 start3D = { m_boxSize / -6.0f, m_boxSize / -6.0f, m_boxSize / -6.0f };
-    Math::float3 end3D = { m_boxSize / 6.0f, m_boxSize / 6.0f, m_boxSize / 6.0f };
-
-    gridVerts = Geometry::Generate3DGrid(Geometry::Shape3D::Sphere, grid3DRes, start3D, end3D);
-  }
+  clContext.acquireGLBuffers({ "p_pos", "p_col" });
 
   const float& inf = std::numeric_limits<float>::infinity();
-  std::vector<std::array<float, 4>> pos(m_maxNbParticles, std::array<float, 4>({ inf, inf, inf, 0.0f }));
+  std::vector<std::array<float, 4>> buffer(m_maxNbParticles, std::array<float, 4>({ inf, inf, inf, 0.0f }));
 
-  std::transform(gridVerts.cbegin(), gridVerts.cend(), pos.begin(),
-      [](const Math::float3& vertPos) -> std::array<float, 4> { return { vertPos.x, vertPos.y, vertPos.z, 0.0f }; });
-
-  clContext.loadBufferFromHost("p_pos", 0, 4 * sizeof(float) * pos.size(), pos.data());
+  clContext.loadBufferFromHost("p_pos", 0, 4 * sizeof(float) * buffer.size(), buffer.data());
   // Using same buffer to initialize vel, giving interesting patterns
-  clContext.loadBufferFromHost("p_vel", 0, 4 * sizeof(float) * pos.size(), pos.data());
+  clContext.loadBufferFromHost("p_vel", 0, 4 * sizeof(float) * buffer.size(), buffer.data());
 
-  clContext.releaseGLBuffers({ "p_pos" });
+  buffer = std::vector<std::array<float, 4>>(m_maxNbParticles, std::array<float, 4>({ 0.0f, 0.0f, 0.0f, 0.0f }));
+
+  clContext.loadBufferFromHost("p_col", 0, 4 * sizeof(float) * buffer.size(), buffer.data());
+
+  clContext.releaseGLBuffers({ "p_pos", "p_col" });
+}
+
+// Must be called only if OpenGLBuffers p_pos and p_col has been acquired by OpenCL Context
+void Boids::emitParticles()
+{
+  CL::Context& clContext = CL::Context::Get();
+
+  for (const auto& emitter : m_particleEmitters)
+  {
+    size_t nbNewParticles = emitter.getNbParticles();
+
+    std::vector<std::array<float, 4>> tempBuffer(nbNewParticles, std::array<float, 4>({ 0.0f, 0.0f, 0.0f, 0.0f }));
+
+    std::vector<Math::float3> newParticlesPos = emitter.getParticlesPos();
+    std::transform(newParticlesPos.cbegin(), newParticlesPos.cend(), tempBuffer.begin(),
+        [](const Math::float3& vertPos) -> std::array<float, 4> { return { vertPos.x, vertPos.y, vertPos.z, 0.0f }; });
+
+    clContext.loadBufferFromHost("p_pos", 4 * sizeof(float) * m_currNbParticles, 4 * sizeof(float) * tempBuffer.size(), tempBuffer.data());
+    // Using same buffer to initialize vel, giving interesting patterns
+    clContext.loadBufferFromHost("p_vel", 4 * sizeof(float) * m_currNbParticles, 4 * sizeof(float) * tempBuffer.size(), tempBuffer.data());
+
+    std::vector<Math::float3> newParticlesCol = emitter.getParticlesCol();
+    std::transform(newParticlesCol.cbegin(), newParticlesCol.cend(), tempBuffer.begin(),
+        [](const Math::float3& vertCol) -> std::array<float, 4> { return { vertCol.x, vertCol.y, vertCol.z, 0.0f }; });
+
+    clContext.loadBufferFromHost("p_col", 4 * sizeof(float) * m_currNbParticles, 4 * sizeof(float) * tempBuffer.size(), tempBuffer.data());
+
+    m_currNbParticles += nbNewParticles;
+  }
+
+  clearParticleEmitterList();
 }
 
 void Boids::update()
@@ -247,6 +260,8 @@ void Boids::update()
 
   if (!m_pause)
   {
+    emitParticles();
+
     float timeStep = 0.1f;
     clContext.runKernel(KERNEL_FILL_CELL_ID, m_currNbParticles);
 

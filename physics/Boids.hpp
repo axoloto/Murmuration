@@ -119,6 +119,7 @@ class Boids : public Model
   bool createKernels() const;
   void updateBoidsParamsInKernel();
   void updateGridParamsInKernel();
+  void emitParticles();
 
   bool m_activeAlignment;
   bool m_activeCohesion;

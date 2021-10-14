@@ -180,8 +180,19 @@ bool ParticleSystemApp::checkSDLStatus()
     }
     case SDL_KEYDOWN:
     {
-      bool isPaused = m_physicsEngine->onPause();
-      m_physicsEngine->pause(!isPaused);
+      // WIP, only for testing, use num pad enter
+      if (event.key.keysym.scancode == SDL_SCANCODE_KP_ENTER)
+      {
+        size_t number = 64;
+        Math::float3 pos = Math::float3(0.0f, 0.0f, 0.0f);
+        Math::float3 col = Math::float3(0.0f, 1.0f, 1.0f);
+        m_physicsEngine->addParticleEmitter(number, pos, col);
+      }
+      else
+      {
+        bool isPaused = m_physicsEngine->onPause();
+        m_physicsEngine->pause(!isPaused);
+      }
       break;
     }
     }
