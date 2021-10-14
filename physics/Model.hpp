@@ -49,9 +49,9 @@ class Model
     CL::Context::Get().release();
   };
 
-  void addParticleEmitter(size_t nbParts, const Math::float3& origin, const Math::float3& col)
+  void addParticleEmitter(const Math::float3& initPos, const Math::float3& initVel, const Math::float3& col, int lifeTime)
   {
-    m_particleEmitters.push_back(ParticleEmitter(m_dimension, nbParts, origin, col));
+    m_particleEmitters.push_back(ParticleEmitter(m_dimension, initPos, initVel, col, lifeTime));
   }
 
   void clearParticleEmitterList() { m_particleEmitters.clear(); }

@@ -159,6 +159,17 @@ void UI::PhysicsWidget::displayBoidsParameters(Physics::Boids* boidsEngine)
 
   ImGui::Spacing();
   ImGui::Separator();
+  ImGui::Text("Life Time");
+  ImGui::Spacing();
+
+  bool isLifeTime = boidsEngine->isLifeTimeActivated();
+  if (ImGui::Checkbox("Activate", &isLifeTime))
+  {
+    boidsEngine->activateLifeTime(isLifeTime);
+  }
+
+  ImGui::Spacing();
+  ImGui::Separator();
   ImGui::Text("Target");
   ImGui::Spacing();
 

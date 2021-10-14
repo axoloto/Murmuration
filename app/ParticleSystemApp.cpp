@@ -308,14 +308,15 @@ void ParticleSystemApp::checkMidiNotes()
     float r = it->get_rgb()[0];
     float g = it->get_rgb()[1];
     float b = it->get_rgb()[2];
-    //size_t number = it->get_velocity();
-    
+
     float height = sqrt(r * r + g * g + b * b) * 20.0f - 10.0f;
     float depth = sqrt(g * g + b * b) * 20.0f - 10.0f;
     float width = r * 20.0f - 10.0f;
     Math::float3 pos = Math::float3(width, depth, height);
+    Math::float3 vel = pos;
+    int lifeTime = 500;
     Math::float3 col = Math::float3(r, g, b);
-    m_physicsEngine->addParticleEmitter(number, pos, col);
+    m_physicsEngine->addParticleEmitter(pos, vel, col, lifeTime);
   }
 }
 
@@ -377,7 +378,7 @@ bool ParticleSystemApp::checkSDLStatus()
         size_t number = 64;
         Math::float3 pos = Math::float3(0.0f, 0.0f, 0.0f);
         Math::float3 col = Math::float3(0.0f, 1.0f, 1.0f);
-        m_physicsEngine->addParticleEmitter(number, pos, col);
+        m_physicsEngine->addParticleEmitter(pos, pos, col, 300);
       }
       else
       {
@@ -437,7 +438,6 @@ ParticleSystemApp::ParticleSystemApp()
 
   m_init = true;
 }
-
 
 bool ParticleSystemApp::initGraphicsEngine()
 {
@@ -562,6 +562,7 @@ void ParticleSystemApp::run()
   }
 
   closeWindow();
+
   midi_thread.join();
 }
 
@@ -705,7 +706,7 @@ int main(int, char**)
   Utils::InitializeLogger();
 
   App::ParticleSystemApp app;
-  
+
   if (app.isInit())
   {
     app.run();

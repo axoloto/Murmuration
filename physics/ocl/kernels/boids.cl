@@ -292,14 +292,17 @@ __kernel void updatePosWithBouncingWalls(//Input/output
                                                __global float4 *pos)     // 2
 
 {
-  const float4 newPos = pos[ID] + vel[ID] * timeStep;
-  const float4 clampedNewPos = clamp(newPos, -ABS_WALL_POS, ABS_WALL_POS);
-  
-  pos[ID] = clampedNewPos;  
-
-  if (!all(isequal(clampedNewPos.xyz, newPos.xyz)))
+  if(length(pos[ID]) < 100.0f)
   {
-    vel[ID] *= -0.5f;
+    const float4 newPos = pos[ID] + vel[ID] * timeStep;
+    const float4 clampedNewPos = clamp(newPos, -ABS_WALL_POS, ABS_WALL_POS);
+    
+    pos[ID] = clampedNewPos;  
+
+    if (!all(isequal(clampedNewPos.xyz, newPos.xyz)))
+    {
+      vel[ID] *= -0.5f;
+    }
   }
 }
 
@@ -313,23 +316,26 @@ __kernel void updatePosWithCyclicWalls(//Input
                                       //Input/output
                                             __global float4 *pos)     // 2
 {
-  const float4 newPos = pos[ID] + vel[ID] * timeStep;
-  float4 clampedNewPos = clamp(newPos, -ABS_WALL_POS, ABS_WALL_POS);
+  if(length(pos[ID]) < 100.0f)
+  {
+    const float4 newPos = pos[ID] + vel[ID] * timeStep;
+    float4 clampedNewPos = clamp(newPos, -ABS_WALL_POS, ABS_WALL_POS);
 
-  if (!isequal(clampedNewPos.x, newPos.x))
-  {
-    clampedNewPos.x *= -1;
-  }
-  if (!isequal(clampedNewPos.y, newPos.y))
-  {
-    clampedNewPos.y *= -1;
-  }
-  if (!isequal(clampedNewPos.z, newPos.z))
-  {
-    clampedNewPos.z *= -1;
-  }
+    if (!isequal(clampedNewPos.x, newPos.x))
+    {
+      clampedNewPos.x *= -1;
+    }
+    if (!isequal(clampedNewPos.y, newPos.y))
+    {
+      clampedNewPos.y *= -1;
+    }
+    if (!isequal(clampedNewPos.z, newPos.z))
+    {
+      clampedNewPos.z *= -1;
+    }
 
-  pos[ID] = clampedNewPos;
+    pos[ID] = clampedNewPos;
+  }
 }
 
 /*
@@ -344,7 +350,7 @@ __kernel void updateLifeTime(//Input/Output
 
   if (life < 0)
   {
-    pos[ID] = (float4)(1000000.0f, 100000.0f, 100000.0f, 1.0f);
+    pos[ID] = (float4)(-10000.0f, -10000.0f, -10000.0f, 1.0f);
   }
   else
   {

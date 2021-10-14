@@ -112,6 +112,13 @@ class Boids : public Model
   }
   int targetSignEffect() const { return m_target ? m_target->signEffect() : 0; }
 
+  //
+  void activateLifeTime(bool activatelifeTime)
+  {
+    m_activeLifeTime = activatelifeTime;
+  }
+  bool isLifeTimeActivated() const { return m_activeLifeTime; }
+
   private:
   void initBoidsParticles();
   bool createProgram() const;
@@ -124,6 +131,7 @@ class Boids : public Model
   bool m_activeAlignment;
   bool m_activeCohesion;
   bool m_activeSeparation;
+  bool m_activeLifeTime;
 
   float m_scaleAlignment;
   float m_scaleCohesion;

@@ -237,10 +237,14 @@ void Boids::emitParticles()
 
     std::vector<Math::float3> newParticlesPos = emitter.getParticlesPos();
     std::transform(newParticlesPos.cbegin(), newParticlesPos.cend(), tempBuffer.begin(),
-        [](const Math::float3& vertPos) -> std::array<float, 4> { return { vertPos.x, vertPos.y, vertPos.z, 0.0f }; });
+        [](const Math::float3& pos) -> std::array<float, 4> { return { pos.x, pos.y, pos.z, 0.0f }; });
 
     clContext.loadBufferFromHost("p_pos", 4 * sizeof(float) * m_currNbParticles, 4 * sizeof(float) * tempBuffer.size(), tempBuffer.data());
-    // Using same buffer to initialize vel, giving interesting patterns
+
+    std::vector<Math::float3> newParticlesVel = emitter.getParticlesVel();
+    std::transform(newParticlesVel.cbegin(), newParticlesVel.cend(), tempBuffer.begin(),
+        [](const Math::float3& vel) -> std::array<float, 4> { return { vel.x, vel.y, vel.z, 0.0f }; });
+
     clContext.loadBufferFromHost("p_vel", 4 * sizeof(float) * m_currNbParticles, 4 * sizeof(float) * tempBuffer.size(), tempBuffer.data());
 
     std::vector<Math::float3> newParticlesCol = emitter.getParticlesCol();
@@ -249,7 +253,7 @@ void Boids::emitParticles()
 
     clContext.loadBufferFromHost("p_col", 4 * sizeof(float) * m_currNbParticles, 4 * sizeof(float) * tempBuffer.size(), tempBuffer.data());
 
-    std::vector<int> lifeTime(nbNewParticles, 500);
+    std::vector<int> lifeTime(nbNewParticles, emitter.getParticlesLifeTime());
     clContext.loadBufferFromHost("p_lifeTime", sizeof(int) * m_currNbParticles, sizeof(int) * lifeTime.size(), lifeTime.data());
 
     m_currNbParticles += nbNewParticles;
@@ -316,12 +320,14 @@ void Boids::update()
     clContext.runKernel(KERNEL_FILL_PART_DETECTOR, m_currNbParticles);
   }
 
-  // WIP, not working yet
-  //clContext.runKernel(KERNEL_UPDATE_LIFE_TIME, m_currNbParticles);
+  // WIP
+  if (m_activeLifeTime)
+    clContext.runKernel(KERNEL_UPDATE_LIFE_TIME, m_currNbParticles);
 
-  clContext.runKernel(KERNEL_FILL_CAMERA_DIST, m_currNbParticles);
+  // WIP
+  // clContext.runKernel(KERNEL_FILL_CAMERA_DIST, m_currNbParticles);
 
-  m_radixSort.sort("p_cameraDist", { "p_pos", "p_col", "p_vel", "p_acc" });
+  // m_radixSort.sort("p_cameraDist", { "p_pos", "p_col", "p_vel", "p_acc" });
 
   clContext.releaseGLBuffers({ "p_pos", "p_col", "c_partDetector", "u_cameraPos" });
 }
