@@ -17,7 +17,6 @@
 #include <iostream>
 #include <vector>
 
-
 Physics::CL::Context& Physics::CL::Context::Get()
 {
   static Context context;
@@ -639,7 +638,7 @@ bool Physics::CL::Context::setKernelArg(std::string kernelName, cl_uint argIndex
   return true;
 }
 
-bool Physics::CL::Context::runKernel(std::string kernelName, size_t numGlobalWorkItems, size_t numLocalWorkItems)
+bool Physics::CL::Context::runKernel(std::string kernelName, size_t numGlobalWorkItems, size_t numLocalWorkItems, size_t globalOffset)
 {
   if (!m_init)
     return false;
@@ -654,10 +653,11 @@ bool Physics::CL::Context::runKernel(std::string kernelName, size_t numGlobalWor
   cl::Event event;
   cl::NDRange global(numGlobalWorkItems);
   cl::NDRange local = (numLocalWorkItems > 0) ? cl::NDRange(numLocalWorkItems) : cl::NullRange;
+  cl::NDRange offset(globalOffset);
 
   cl_int err;
 
-  err = cl_queue.enqueueNDRangeKernel(it->second, cl::NullRange, global, local, nullptr, &event);
+  err = cl_queue.enqueueNDRangeKernel(it->second, offset, global, local, nullptr, &event);
   if (err != CL_SUCCESS)
   {
     CL_ERROR(err, "Failure of kernel " + kernelName + " while running");

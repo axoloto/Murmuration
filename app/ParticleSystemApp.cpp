@@ -15,7 +15,6 @@
 #include <glad/glad.h>
 #include <sdl2/SDL.h>
 
-
 #if __APPLE__
 constexpr auto GLSL_VERSION = "#version 150";
 #else
@@ -117,11 +116,11 @@ void mycallback(double deltatime, std::vector<unsigned char>* message, void* use
     int degree = ((int)message->at(1) - key) % 12;
     int octave = (((int)message->at(1) - key) / 12) + 1;
     float rgb[3];
-    rgb[0] = (((float)scale[degree][0] /2.0f + ((float)octave / 8.0f) * luminosity_incr)) / 255.0f;
-    rgb[1] = (((float)scale[degree][1] /2.0f  + ((float)octave / 8.0f) * luminosity_incr)) / 255.0f;
-    rgb[2] = (((float)scale[degree][2] /2.0f  + ((float)octave / 8.0f) * luminosity_incr)) / 255.0f;
+    rgb[0] = (((float)scale[degree][0] / 2.0f + ((float)octave / 8.0f) * luminosity_incr)) / 255.0f;
+    rgb[1] = (((float)scale[degree][1] / 2.0f + ((float)octave / 8.0f) * luminosity_incr)) / 255.0f;
+    rgb[2] = (((float)scale[degree][2] / 2.0f + ((float)octave / 8.0f) * luminosity_incr)) / 255.0f;
     float pos[3];
-    pos[0] = std::min(std::max((float)degree / 12.0f + (float)octave / 9.0f * size_box - size_box / 2.0f + rayon* cos((float)degree / 12.0f * 2.0f * Math::PI_F), -size_box /2.0f), size_box /2.0f);
+    pos[0] = std::min(std::max((float)degree / 12.0f + (float)octave / 9.0f * size_box - size_box / 2.0f + rayon * cos((float)degree / 12.0f * 2.0f * Math::PI_F), -size_box / 2.0f), size_box / 2.0f);
     pos[1] = std::min(std::max((float)degree / 12.0f + (float)octave / 9.0f * size_box - size_box / 2.0f + rayon * sin((float)degree / 12.0f * 2.0f * Math::PI_F), -size_box / 2.0f), size_box / 2.0f);
     pos[2] = std::min(std::max((float)degree / 12.0f + (float)octave / 8.0f * size_box - size_box / 2.0f, -size_box / 2.0f), size_box / 2.0f);
     Note note((int)message->at(1), (int)message->at(2), beat, rgb, pos);
@@ -322,8 +321,8 @@ void ParticleSystemApp::checkMidiNotes()
     float depth = it->get_pos()[0];
     float width = it->get_pos()[1];
     Math::float3 pos = Math::float3(width, depth, height);
-    Math::float3 vel = - pos / 100.0f;
-    int lifeTime = 50 + it->get_velocity();
+    Math::float3 vel = -pos / 100.0f;
+    int lifeTime = 200 + it->get_velocity();
     Math::float3 col = Math::float3(r, g, b);
     m_physicsEngine->addParticleEmitter(pos, vel, col, lifeTime);
   }

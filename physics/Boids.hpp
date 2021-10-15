@@ -126,7 +126,8 @@ class Boids : public Model
   bool createKernels() const;
   void updateBoidsParamsInKernel();
   void updateGridParamsInKernel();
-  void emitParticles();
+  void emitNewParticles();
+  void releaseDeadParticles();
 
   bool m_activeAlignment;
   bool m_activeCohesion;
@@ -139,6 +140,9 @@ class Boids : public Model
 
   bool m_simplifiedMode;
   size_t m_maxNbPartsInCell;
+
+  size_t m_firstParticleAliveIndex;
+  std::vector<int> m_particleLifes;
 
   std::unique_ptr<Target> m_target;
 

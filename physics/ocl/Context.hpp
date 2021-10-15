@@ -49,7 +49,7 @@ class Context
   bool createKernel(std::string programName, std::string kernelName, std::vector<std::string> argNames);
   bool setKernelArg(std::string kernelName, cl_uint argIndex, size_t argSize, const void* value);
   bool setKernelArg(std::string kernelName, cl_uint argIndex, const std::string& bufferName);
-  bool runKernel(std::string kernelName, size_t numFlobalWorkItems, size_t numLocalWorkItems = 0);
+  bool runKernel(std::string kernelName, size_t numGlobalWorkItems, size_t numLocalWorkItems = 0, size_t globalOffset = 0);
 
   bool acquireGLBuffers(const std::vector<std::string>& GLBufferNames) { return interactWithGLBuffers(GLBufferNames, interOpCLGL::ACQUIRE); }
   bool releaseGLBuffers(const std::vector<std::string>& GLBufferNames) { return interactWithGLBuffers(GLBufferNames, interOpCLGL::RELEASE); }
