@@ -32,6 +32,7 @@ class ParticleSystemApp
   void displayMainWidget();
   bool popUpMessage(const std::string& title, const std::string& message) const;
   bool isUsingIGPU() const;
+  void checkMidiNotes();
 
   std::unique_ptr<Physics::Model> m_physicsEngine;
   std::unique_ptr<Render::Engine> m_graphicsEngine;

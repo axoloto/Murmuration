@@ -298,6 +298,27 @@ void ParticleSystemApp::checkMouseState()
   }
 }
 
+void ParticleSystemApp::checkMidiNotes()
+{
+  std::list<Note> list_note = played_notes.get_all();
+  std::list<Note>::iterator it;
+  size_t number = 64;
+  for (it = list_note.begin(); it != list_note.end(); ++it)
+  {
+    float r = it->get_rgb()[0];
+    float g = it->get_rgb()[1];
+    float b = it->get_rgb()[2];
+    //size_t number = it->get_velocity();
+    
+    float height = sqrt(r * r + g * g + b * b) * 20.0f - 10.0f;
+    float depth = sqrt(g * g + b * b) * 20.0f - 10.0f;
+    float width = r * 20.0f - 10.0f;
+    Math::float3 pos = Math::float3(width, depth, height);
+    Math::float3 col = Math::float3(r, g, b);
+    m_physicsEngine->addParticleEmitter(number, pos, col);
+  }
+}
+
 bool ParticleSystemApp::checkSDLStatus()
 {
   bool stopRendering = false;
@@ -489,6 +510,7 @@ void ParticleSystemApp::run()
     stopRendering = checkSDLStatus();
 
     checkMouseState();
+    checkMidiNotes();
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame(m_window);
