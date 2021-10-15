@@ -32,7 +32,7 @@ class ParticleSystemApp
   bool initPhysicsEngine();
   bool initPhysicsWidget();
   bool initGraphicsWidget();
-  bool _initMidiReader();
+  bool initMidiReader();
   bool closeWindow();
   bool checkSDLStatus();
   void checkMouseState();

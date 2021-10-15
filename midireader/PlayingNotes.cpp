@@ -1,5 +1,5 @@
 #include "PlayingNotes.hpp"
-
+#include "Logging.hpp"
 using namespace Midi;
 
 void PlayingNotes::add(Note note)
@@ -7,6 +7,7 @@ void PlayingNotes::add(Note note)
   remove(note.getPitch());
   remove_hanging_note(note.getPitch());
   std::lock_guard<std::mutex> guard(myMutex);
+  LOG_INFO("ADDDING NOTE");
   notes.push_back(note);
 };
 
