@@ -15,6 +15,7 @@
 #include <glad/glad.h>
 #include <sdl2/SDL.h>
 
+
 #if __APPLE__
 constexpr auto GLSL_VERSION = "#version 150";
 #else
@@ -26,7 +27,9 @@ PlayingNotes played_notes;
 std::clock_t start = std::clock();
 double duration;
 int beat = 1;
-float luminosity_incr = 150.0f; // must be < 200.0f
+float size_box = 18.0f;
+float rayon = 2.0f;
+float luminosity_incr = 130.0f; // must be < 150.0f
 int key = 24; // starting major ionian C #24 midi
 ///////////////////////root/////////m2nd/////////2nd///////////m3rd////////3rd////////4th/////////m5th/////////5th//////////#5th/////////6th//////////m7th////////7th/////
 int scale[12][3] = { { 0, 0, 51 }, { 51, 0, 0 }, { 51, 25, 0 }, { 51, 0, 0 }, { 0, 51, 25 }, { 51, 0, 25 }, { 51, 0, 0 }, { 25, 51, 0 }, { 51, 0, 0 }, { 51, 0, 51 }, { 51, 0, 0 }, { 51, 51, 0 } };
@@ -114,10 +117,14 @@ void mycallback(double deltatime, std::vector<unsigned char>* message, void* use
     int degree = ((int)message->at(1) - key) % 12;
     int octave = (((int)message->at(1) - key) / 12) + 1;
     float rgb[3];
-    rgb[0] = (((float)scale[degree][0] + ((float)octave / 8) * luminosity_incr)) / 255.0f;
-    rgb[1] = (((float)scale[degree][1] + ((float)octave / 8) * luminosity_incr)) / 255.0f;
-    rgb[2] = (((float)scale[degree][2] + ((float)octave / 8) * luminosity_incr)) / 255.0f;
-    Note note((int)message->at(1), (int)message->at(2), beat, rgb);
+    rgb[0] = (((float)scale[degree][0] /2.0f + ((float)octave / 8.0f) * luminosity_incr)) / 255.0f;
+    rgb[1] = (((float)scale[degree][1] /2.0f  + ((float)octave / 8.0f) * luminosity_incr)) / 255.0f;
+    rgb[2] = (((float)scale[degree][2] /2.0f  + ((float)octave / 8.0f) * luminosity_incr)) / 255.0f;
+    float pos[3];
+    pos[0] = std::min(std::max((float)degree / 12.0f + (float)octave / 9.0f * size_box - size_box / 2.0f + rayon* cos((float)degree / 12.0f * 2.0f * Math::PI_F), -size_box /2.0f), size_box /2.0f);
+    pos[1] = std::min(std::max((float)degree / 12.0f + (float)octave / 9.0f * size_box - size_box / 2.0f + rayon * sin((float)degree / 12.0f * 2.0f * Math::PI_F), -size_box / 2.0f), size_box / 2.0f);
+    pos[2] = std::min(std::max((float)degree / 12.0f + (float)octave / 8.0f * size_box - size_box / 2.0f, -size_box / 2.0f), size_box / 2.0f);
+    Note note((int)message->at(1), (int)message->at(2), beat, rgb, pos);
     played_notes.add(note);
     std::cout << "We are playing the " << degree << " degree of octave " << octave << " of color " << rgb[0] << " " << rgb[1] << " " << rgb[2] << std::endl;
 
@@ -312,12 +319,12 @@ void ParticleSystemApp::checkMidiNotes()
     float g = it->get_rgb()[1];
     float b = it->get_rgb()[2];
 
-    float height = sqrt(r * r + g * g + b * b) * 20.0f - 10.0f;
-    float depth = sqrt(g * g + b * b) * 20.0f - 10.0f;
-    float width = r * 20.0f - 10.0f;
+    float height = it->get_pos()[2];
+    float depth = it->get_pos()[0];
+    float width = it->get_pos()[1];
     Math::float3 pos = Math::float3(width, depth, height);
     Math::float3 vel = - pos / 100.0f;
-    int lifeTime = 50 + it->get_velocity() * 3;
+    int lifeTime = 50 + it->get_velocity();
     Math::float3 col = Math::float3(r, g, b);
     m_physicsEngine->addParticleEmitter(pos, vel, col, lifeTime);
   }

@@ -95,8 +95,8 @@ void Cmidiin::mycallback(double deltatime, std::vector<unsigned char>* message, 
         rgb[0] = (((float) scale[degree][0] + ((float) octave / 8) * luminosity_incr)) / 255.0f;
         rgb[1] = (((float)scale[degree][1] + ((float)octave / 8) * luminosity_incr)) / 255.0f;
         rgb[2] = (((float)scale[degree][2] + ((float)octave / 8) * luminosity_incr)) / 255.0f;
-        Note note((int)message->at(1), (int)message->at(2), beat, rgb);
-        played_notes.add(note);
+        //Note note((int)message->at(1), (int)message->at(2), beat, rgb);
+        //played_notes.add(note);
         std::cout << "We are playing the " << degree << " degree of octave " << octave << " of color " << rgb[0] <<" " << rgb[1] << " " << rgb[2] << std::endl;
         
         if (duration > 5.0f)

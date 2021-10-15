@@ -14,3 +14,8 @@ float* Note::get_rgb()
 {
 	return rgb;
 };
+
+float* Note::get_pos()
+{
+  return pos;
+};
