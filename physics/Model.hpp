@@ -28,7 +28,7 @@ struct ModelParams
 class Model
 {
   public:
-  Model(ModelParams params, Dimension dimension = Dimension::dim2D)
+  Model(ModelParams params, Dimension dimension = Dimension::dim3D)
       : m_maxNbParticles(params.maxNbParticles)
       , m_currNbParticles(params.currNbParticles)
       , m_boxSize(params.boxSize)

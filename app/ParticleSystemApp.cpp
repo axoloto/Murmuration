@@ -148,7 +148,6 @@ void mycallback(double deltatime, std::vector<unsigned char>* message, void* use
       played_notes.remove_all_hanging_notes();
     }
   }
-  
 }
 
 void initMidiReader()
@@ -316,7 +315,7 @@ void ParticleSystemApp::checkMidiNotes()
     float depth = sqrt(g * g + b * b) * 20.0f - 10.0f;
     float width = r * 20.0f - 10.0f;
     Math::float3 pos = Math::float3(width, depth, height);
-    Math::float3 vel = - pos / 100.0f;
+    Math::float3 vel = -pos / 100.0f;
     int lifeTime = 50 + it->get_velocity() * 3;
     Math::float3 col = Math::float3(r, g, b);
     m_physicsEngine->addParticleEmitter(pos, vel, col, lifeTime);
@@ -381,7 +380,7 @@ bool ParticleSystemApp::checkSDLStatus()
         size_t number = 64;
         Math::float3 pos = Math::float3(0.0f, 0.0f, 0.0f);
         Math::float3 col = Math::float3(0.0f, 1.0f, 1.0f);
-        m_physicsEngine->addParticleEmitter(pos, pos, col, 300);
+        m_physicsEngine->addParticleEmitter(pos, pos, col, 400);
       }
       else
       {
@@ -579,39 +578,6 @@ void ParticleSystemApp::displayMainWidget()
 
   if (!isInit())
     return;
-
-  /*
-  // Selection of the physical model
-  const auto& selModelName = (Physics::ALL_MODELS.find(m_modelType) != Physics::ALL_MODELS.end())
-      ? Physics::ALL_MODELS.find(m_modelType)->second
-      : Physics::ALL_MODELS.cbegin()->second;
-
-  if (ImGui::BeginCombo("Physical Model", selModelName.c_str()))
-  {
-    for (const auto& model : Physics::ALL_MODELS)
-    {
-      if (ImGui::Selectable(model.second.c_str(), m_modelType == model.first))
-      {
-        m_modelType = model.first;
-
-        if (!initPhysicsEngine())
-        {
-          LOG_ERROR("Failed to change physics engine");
-          return;
-        }
-
-        if (!initPhysicsWidget())
-        {
-          LOG_ERROR("Failed to change physics widget");
-          return;
-        }
-
-        LOG_INFO("Application correctly switched to {}", Physics::ALL_MODELS.find(m_modelType)->second);
-      }
-    }
-    ImGui::EndCombo();
-  }
-*/
 
   bool isOnPaused = m_physicsEngine->onPause();
   std::string pauseRun = isOnPaused ? "  Start  " : "  Pause  ";

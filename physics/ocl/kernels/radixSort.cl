@@ -176,7 +176,7 @@ __kernel void resetIndex(__global uint* indices)
 /*
   Permutate float4 values.
 */
-__kernel void permutate(//Input
+__kernel void permutateFloat4(//Input
                         const __global uint   *permutatedIndices, // 0
                         const __global float4 *valToPermutate,    // 1
                         //Output
@@ -192,9 +192,9 @@ __kernel void permutate(//Input
 */
 __kernel void permutateInt(//Input
                            const __global uint *permutatedIndices, // 0
-                           const __global uint *valToPermutate,    // 1
+                           const __global int *valToPermutate,    // 1
                            //Output
-                                 __global uint *permutatedVal)     // 2
+                                 __global int *permutatedVal)     // 2
 {
   const uint newIndex = permutatedIndices[ID];
 

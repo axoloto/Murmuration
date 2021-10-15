@@ -48,6 +48,7 @@ Boids::Boids(ModelParams params)
     , m_activeAlignment(true)
     , m_activeSeparation(true)
     , m_activeCohesion(true)
+    , m_activeLifeTime(true)
     , m_simplifiedMode(true)
     , m_maxNbPartsInCell(3000)
     , m_radixSort(params.maxNbParticles)
@@ -123,7 +124,7 @@ bool Boids::createKernels() const
   clContext.createKernel(PROGRAM_BOIDS, KERNEL_UPDATE_VEL, { "p_acc", "", "", "p_vel" });
   clContext.createKernel(PROGRAM_BOIDS, KERNEL_UPDATE_POS_BOUNCING, { "p_vel", "", "p_pos" });
   clContext.createKernel(PROGRAM_BOIDS, KERNEL_UPDATE_POS_CYCLIC, { "p_vel", "", "p_pos" });
-  clContext.createKernel(PROGRAM_BOIDS, KERNEL_UPDATE_LIFE_TIME, { "p_lifeTime", "p_pos" });
+  clContext.createKernel(PROGRAM_BOIDS, KERNEL_UPDATE_LIFE_TIME, { "p_lifeTime", "p_pos", "p_col" });
 
   // Radix Sort based on 3D grid
   clContext.createKernel(PROGRAM_BOIDS, KERNEL_RESET_CELL_ID, { "p_cellID" });
@@ -278,7 +279,7 @@ void Boids::update()
     float timeStep = 0.1f;
     clContext.runKernel(KERNEL_FILL_CELL_ID, m_currNbParticles);
 
-    m_radixSort.sort("p_cellID", { "p_pos", "p_col", "p_vel", "p_acc" });
+    m_radixSort.sort("p_cellID", { "p_pos", "p_col", "p_vel", "p_acc" }, { "p_lifeTime" });
 
     clContext.runKernel(KERNEL_RESET_START_END_CELL, m_nbCells);
     clContext.runKernel(KERNEL_FILL_START_CELL, m_currNbParticles);
