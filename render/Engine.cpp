@@ -2,7 +2,6 @@
 #include "GLSL.hpp"
 #include "Logging.hpp"
 #include "Math.hpp"
-#include "RtMidi.h"
 
 using namespace Render;
 
@@ -37,7 +36,6 @@ Engine::Engine(EngineParams params)
   initGrid();
 
   initTarget();
-
 }
 
 Engine::~Engine()

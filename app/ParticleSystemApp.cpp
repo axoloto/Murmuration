@@ -8,6 +8,9 @@
 #include "Parameters.hpp"
 #include "Utils.hpp"
 
+#include "PlayingNotes.hpp"
+#include "RtMidi.h"
+
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl.h>
@@ -108,11 +111,10 @@ void mycallback(double deltatime, std::vector<unsigned char>* message, void* use
   //notes range from 21 to 108
   if ((int)message->at(0) == 144) //note on so we create particles
   {
-    /* Your algorithm here */
     beat++;
     duration = (std::clock() - start) / (double)CLOCKS_PER_SEC + 1.0f;
-    std::cout << "Beat estimated is : " << (double)beat / duration << '\n';
-    std::cout << "We are creating particles from note " << (int)message->at(1) << " at speed " << (int)message->at(2) << std::endl;
+    LOG_INFO("Beat estimated is : {} ", (double)beat / duration);
+    LOG_INFO("We are creating particles from note {} at speed {}", (int)message->at(1), (int)message->at(2));
     int degree = ((int)message->at(1) - key) % 12;
     int octave = (((int)message->at(1) - key) / 12) + 1;
     float rgb[3];
@@ -125,7 +127,7 @@ void mycallback(double deltatime, std::vector<unsigned char>* message, void* use
     pos[2] = std::min(std::max((float)degree / 12.0f + (float)octave / 8.0f * size_box - size_box / 2.0f, -size_box / 2.0f), size_box / 2.0f);
     Note note((int)message->at(1), (int)message->at(2), beat, rgb, pos);
     played_notes.add(note);
-    std::cout << "We are playing the " << degree << " degree of octave " << octave << " of color " << rgb[0] << " " << rgb[1] << " " << rgb[2] << std::endl;
+    LOG_INFO("We are playing the {} degree of octave, {} of color {} {} {}", degree, octave, rgb.x, rgb.y, rgb.z);
 
     if (duration > 5.0f)
     {
@@ -137,7 +139,7 @@ void mycallback(double deltatime, std::vector<unsigned char>* message, void* use
   {
     if (pedal_point == 0) // we stop creating particles
     {
-      std::cout << "We stopped creating particle from note " << (int)message->at(1) << std::endl;
+      LOG_INFO("We stopped creating particle from note {} ", (int)message->at(1));
       played_notes.remove((int)message->at(1));
     }
     else //we put the note in queue to be stopped when the pedal is released
@@ -159,14 +161,6 @@ void mycallback(double deltatime, std::vector<unsigned char>* message, void* use
 void initMidiReader()
 {
   RtMidiIn* midiin = 0;
-
-  // Minimal command-line check.
-  //if (argc > 2) usage();
-  //std::cout << "Choose your key from Cmaj (0) to Bmaj (11):\n";
-  //i
-  // nt num = 0;
-  //std::cin >> num;
-  //key = num + 24;
 
   try
   {
@@ -308,23 +302,17 @@ void ParticleSystemApp::checkMouseState()
 
 void ParticleSystemApp::checkMidiNotes()
 {
-  std::list<Note> list_note = played_notes.get_all();
+  std::list<Note> list_note = played_notes.getAllNotes();
   std::list<Note>::iterator it;
   size_t number = 64;
   for (it = list_note.begin(); it != list_note.end(); ++it)
   {
-    float r = it->get_rgb()[0];
-    float g = it->get_rgb()[1];
-    float b = it->get_rgb()[2];
+    auto rgb = it->getRgb();
 
-    float height = it->get_pos()[2];
-    float depth = it->get_pos()[0];
-    float width = it->get_pos()[1];
-    Math::float3 pos = Math::float3(width, depth, height);
+    Math::float3 pos = it->getPos();
     Math::float3 vel = -pos / 100.0f;
-    int lifeTime = 200 + it->get_velocity();
-    Math::float3 col = Math::float3(r, g, b);
-    m_physicsEngine->addParticleEmitter(pos, vel, col, lifeTime);
+    int lifeTime = 200 + it->getVelocity();
+    m_physicsEngine->addParticleEmitter(pos, vel, rgb, lifeTime);
   }
 }
 

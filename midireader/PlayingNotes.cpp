@@ -1,9 +1,9 @@
-#include "PlayingNotes.h"
+#include "PlayingNotes.hpp"
 
 void PlayingNotes::add(Note note)
 {
-  remove(note.get_pitch());
-  remove_hanging_note(note.get_pitch());
+  remove(note.getPitch());
+  remove_hanging_note(note.getPitch());
   std::lock_guard<std::mutex> guard(myMutex);
   notes.push_back(note);
 };
@@ -14,7 +14,7 @@ void PlayingNotes::remove(int note)
   std::list<Note>::iterator i = notes.begin();
   while (i != notes.end())
   {
-    if (i->get_pitch() == note)
+    if (i->getPitch() == note)
     {
       notes.erase(i++); // alternatively, i = items.erase(i);
     }
@@ -25,13 +25,13 @@ void PlayingNotes::remove(int note)
   }
 };
 
-std::list<Note> PlayingNotes::get_all()
+std::list<Note> PlayingNotes::getAllNotes()
 {
   std::lock_guard<std::mutex> guard(myMutex);
   return notes;
 };
 
-std::list<int> PlayingNotes::get_notes()
+std::list<int> PlayingNotes::getNotes()
 {
   std::lock_guard<std::mutex> guard(myMutex);
   std::list<int> result;
@@ -39,7 +39,7 @@ std::list<int> PlayingNotes::get_notes()
   std::list<Note>::iterator i = notes.begin();
   while (i != notes.end())
   {
-    result.push_back(i->get_pitch());
+    result.push_back(i->getPitch());
     ++i;
   }
   return result;
@@ -84,7 +84,7 @@ void PlayingNotes::remove_all_hanging_notes()
 void PlayingNotes::print_notes()
 {
   std::lock_guard<std::mutex> guard(myMutex);
-  std::list<int> disp = get_notes();
+  std::list<int> disp = getNotes();
   std::cout << "We have notes:";
   std::list<int>::iterator i = disp.begin();
   while (i != disp.end())
