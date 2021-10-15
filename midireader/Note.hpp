@@ -2,6 +2,8 @@
 
 #include "Math.hpp"
 
+namespace Midi
+{
 class Note
 {
   public:
@@ -25,3 +27,4 @@ class Note
   Math::float3 m_rgb;
   Math::float3 m_pos;
 };
+}

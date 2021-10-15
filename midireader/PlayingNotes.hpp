@@ -5,6 +5,8 @@
 #include <list>
 #include <mutex>
 
+namespace Midi
+{
 class PlayingNotes
 {
   public:
@@ -23,3 +25,4 @@ class PlayingNotes
   std::list<Note> notes;
   std::list<int> hanging_notes;
 };
+}

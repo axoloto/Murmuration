@@ -7,6 +7,9 @@
 #include "Model.hpp"
 #include "Parameters.hpp"
 #include "PhysicsWidget.hpp"
+
+#include "Reader.hpp"
+
 #include <SDL.h>
 #include <imgui.h>
 #include "PlayingNotes.h"
@@ -29,6 +32,7 @@ class ParticleSystemApp
   bool initPhysicsEngine();
   bool initPhysicsWidget();
   bool initGraphicsWidget();
+  bool _initMidiReader();
   bool closeWindow();
   bool checkSDLStatus();
   void checkMouseState();
@@ -41,6 +45,7 @@ class ParticleSystemApp
   std::unique_ptr<Render::Engine> m_graphicsEngine;
   std::unique_ptr<UI::PhysicsWidget> m_physicsWidget;
   std::unique_ptr<UI::GraphicsWidget> m_graphicsWidget;
+  std::unique_ptr<Midi::Reader> m_midiReader;
 
   SDL_Window* m_window;
   SDL_GLContext m_OGLContext;

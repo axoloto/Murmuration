@@ -1,5 +1,7 @@
 #include "PlayingNotes.hpp"
 
+using namespace Midi;
+
 void PlayingNotes::add(Note note)
 {
   remove(note.getPitch());

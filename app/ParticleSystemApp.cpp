@@ -25,7 +25,7 @@ constexpr auto GLSL_VERSION = "#version 130";
 #endif
 
 int pedal_point = 0;
-PlayingNotes played_notes;
+Midi::PlayingNotes played_notes;
 std::clock_t start = std::clock();
 double duration;
 int beat = 1;
@@ -59,15 +59,6 @@ void usage(void)
 
 bool chooseMidiPort(RtMidiIn* rtmidi)
 {
-  /*std::cout << "\nWould you like to open a virtual input port? [y/N] ";
-
-    std::string keyHit;
-    std::getline( std::cin, keyHit );
-    if ( keyHit == "y" ) {
-      rtmidi->openVirtualPort();
-      return true;
-    }*/
-
   std::string portName;
   unsigned int i = 0, nPorts = rtmidi->getPortCount();
   if (nPorts == 0)
@@ -93,7 +84,6 @@ bool chooseMidiPort(RtMidiIn* rtmidi)
       std::cout << "\nChoose a port number: ";
       std::cin >> i;
     } while (i >= nPorts);
-    //std::getline( std::cin, keyHit );  // used to clear out stdin
   }
 
   rtmidi->openPort(i);
@@ -161,36 +151,35 @@ void mycallback(double deltatime, std::vector<unsigned char>* message, void* use
 void initMidiReader()
 {
   RtMidiIn* midiin = 0;
-
   try
   {
+    LOG_INFO("Starting reading MIDI input");
+
     // RtMidiIn constructor
     midiin = new RtMidiIn();
 
+    //auto midiin = std::unique_ptr<RtMidiIn>();
+
     // Call function to select port.
-    if (chooseMidiPort(midiin) == false)
-      goto cleanup;
+    if (chooseMidiPort(midiin))
+    {
+      LOG_INFO("Starting reading MIDI input");
 
-    // Set our callback function.  This should be done immediately after
-    // opening the port to avoid having incoming messages written to the
-    // queue instead of sent to the callback function.
-    midiin->setCallback(&mycallback);
+      // Set our callback function.  This should be done immediately after
+      // opening the port to avoid having incoming messages written to the
+      // queue instead of sent to the callback function.
+      midiin->setCallback(&mycallback);
 
-    // Don't ignore sysex, timing, or active sensing messages.
-    midiin->ignoreTypes(false, false, false);
+      // Don't ignore sysex, timing, or active sensing messages.
+      midiin->ignoreTypes(false, false, false);
 
-    std::cout << "\nReading MIDI input ... press <enter> to quit.\n";
-    char input;
-    std::cin.get(input);
+      LOG_INFO("Starting reading MIDI input");
+    }
   }
   catch (RtMidiError& error)
   {
     error.printMessage();
   }
-
-cleanup:
-
-  delete midiin;
 }
 
 namespace App
@@ -302,8 +291,8 @@ void ParticleSystemApp::checkMouseState()
 
 void ParticleSystemApp::checkMidiNotes()
 {
-  std::list<Note> list_note = played_notes.getAllNotes();
-  std::list<Note>::iterator it;
+  std::list<Midi::Note> list_note = played_notes.getAllNotes();
+  std::list<Midi::Note>::iterator it;
   size_t number = 64;
   for (it = list_note.begin(); it != list_note.end(); ++it)
   {
@@ -430,6 +419,12 @@ ParticleSystemApp::ParticleSystemApp()
     return;
   }
 
+  if (!_initMidiReader())
+  {
+    LOG_ERROR("Failed to connect to Midi port");
+    return;
+  }
+
   LOG_INFO("Application correctly initialized");
 
   m_init = true;
@@ -491,6 +486,13 @@ bool ParticleSystemApp::initPhysicsWidget()
   m_physicsWidget = std::make_unique<UI::PhysicsWidget>(m_physicsEngine.get());
 
   return (m_physicsWidget.get() != nullptr);
+}
+
+bool ParticleSystemApp::_initMidiReader()
+{
+  m_midiReader = std::make_unique<Midi::Reader>();
+
+  return (m_midiReader.get() != nullptr);
 }
 
 void ParticleSystemApp::run()
