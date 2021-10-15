@@ -18,7 +18,7 @@ class ParticleEmitter
       , m_initVel(initVel)
       , m_color(col)
       , m_lifeTime(lifeTime)
-      , m_halfSideLength(0.3f) {};
+      , m_halfSideLength(0.03f) {};
 
   ~ParticleEmitter() = default;
 

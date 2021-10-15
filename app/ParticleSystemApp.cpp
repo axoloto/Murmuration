@@ -101,6 +101,8 @@ void mycallback(double deltatime, std::vector<unsigned char>* message, void* use
   //std::cout << "Received midi message" << std::endl;
   unsigned int nBytes = message->size();
 
+  //std::cout << "We received " << (int)message->at(0) << " " << (int)message->at(0)  <<std::endl;
+
   //notes range from 21 to 108
   if ((int)message->at(0) == 144) //note on so we create particles
   {
@@ -146,6 +148,7 @@ void mycallback(double deltatime, std::vector<unsigned char>* message, void* use
       played_notes.remove_all_hanging_notes();
     }
   }
+  
 }
 
 void initMidiReader()
@@ -313,8 +316,8 @@ void ParticleSystemApp::checkMidiNotes()
     float depth = sqrt(g * g + b * b) * 20.0f - 10.0f;
     float width = r * 20.0f - 10.0f;
     Math::float3 pos = Math::float3(width, depth, height);
-    Math::float3 vel = pos;
-    int lifeTime = 500;
+    Math::float3 vel = - pos / 100.0f;
+    int lifeTime = 50 + it->get_velocity() * 3;
     Math::float3 col = Math::float3(r, g, b);
     m_physicsEngine->addParticleEmitter(pos, vel, col, lifeTime);
   }
