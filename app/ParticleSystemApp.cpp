@@ -8,8 +8,6 @@
 #include "Parameters.hpp"
 #include "Utils.hpp"
 
-#include "PlayingNotes.hpp"
-
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl.h>
@@ -139,15 +137,11 @@ void ParticleSystemApp::checkMidiNotes()
   for (const auto& note : listNotes)
   {
     auto rgb = note.getRgb();
-
-    Math::float3 pos = it->getPos();
+    Math::float3 pos = note.getPos();
     Math::float3 vel = -pos / 100.0f;
-<<<<<<< HEAD
-    int lifeTime = 200 + it->getVelocity();
-    == == == = int lifeTime = 200 + note.getVelocity() * 3;
+    int lifeTime = 200 + note.getVelocity();
 
     LOG_INFO("Adding particle emitter");
->>>>>>> 9fef7e9 (midireader cleaned and moved)
     m_physicsEngine->addParticleEmitter(pos, vel, rgb, lifeTime);
   }
 }

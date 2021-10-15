@@ -12,9 +12,6 @@
 
 #include <SDL.h>
 #include <imgui.h>
-#include "PlayingNotes.h"
-#include "Note.h"
-#include "RtMidi.h"
 
 namespace App
 {
