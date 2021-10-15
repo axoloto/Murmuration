@@ -38,7 +38,7 @@ struct NbParticlesInfo
 };
 
 static const std::map<NbParticles, NbParticlesInfo, CompareNbParticles> ALL_NB_PARTICLES {
-  { NbParticles::P64, { "64", { 8, 8 }, { 4, 4, 4 } } },
+  { NbParticles::P64, { "64", { 8, 8 }, { 8, 8, 1 } } },
   { NbParticles::P512, { "512", { 32, 16 }, { 8, 8, 8 } } },
   { NbParticles::P1K, { "1k", { 32, 32 }, { 16, 8, 8 } } },
   { NbParticles::P4K, { "4k", { 64, 64 }, { 16, 16, 16 } } },
