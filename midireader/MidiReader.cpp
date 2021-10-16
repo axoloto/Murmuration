@@ -76,6 +76,8 @@ void callback(double deltatime, std::vector<unsigned char>* message, void* userD
 
     playingNotes->add(note);
 
+    LOG_INFO("Receiving MIDI input with thread {} ", std::hash<std::thread::id> {}(std::this_thread::get_id()));
+
     LOG_INFO("We are playing the {} degree of octave, {} of color {} {} {}", degree, octave, rgb.x, rgb.y, rgb.z);
 
     if (duration > 5.0f)
@@ -121,7 +123,7 @@ void MidiReader::start()
 
     if (chooseMidiPort())
     {
-      LOG_INFO("Starting reading MIDI input");
+      LOG_INFO("Starting reading MIDI input with thread {} ", std::hash<std::thread::id> {}(std::this_thread::get_id()));
 
       // Set our callback function. This should be done immediately after
       // opening the port to avoid having incoming messages written to the

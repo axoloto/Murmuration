@@ -19,6 +19,7 @@ class MidiReader
   std::list<Note> getAllNotes();
 
   private:
+  void launchThread();
   std::unique_ptr<RtMidiIn> m_rtMidiThread;
   PlayingNotes m_playedNotes;
 };
