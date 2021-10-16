@@ -162,6 +162,31 @@ void ParticleSystemApp::checkMidiNotes()
   //m_physicsEngine->setVelocity(listNotes.back().getBeat());
 }
 
+void ParticleSystemApp::checkOscMessages()
+{
+  auto* boidsEngine = dynamic_cast<Physics::Boids*>(m_physicsEngine.get());
+  if (!boidsEngine)
+    return;
+  Math::float3 orientation = m_oscReader->get_ring_orientation();
+  Math::float3 vel = - orientation / 100.0f;
+  Math::float3 rgb;
+  rgb.x = 1.0f;
+  rgb.y = 1.0f;
+  rgb.z = 1.0f;
+  int lifeTime = 300;
+  float tap = m_oscReader->get_ring_tap();
+  float separation = tap *3.0f;
+  float acceleration = m_oscReader->get_ring_acceleration();
+  if (tap > 0.1)
+  {
+    m_physicsEngine->addParticleEmitter(orientation, vel, rgb, lifeTime);
+  }
+  boidsEngine->setScaleSeparation(acceleration);
+  //boidsEngine->setScaleCohesion(separation);
+ // boidsEngine->setScaleAlignement(separation);
+  //m_physicsEngine->setVelocity(listNotes.back().getBeat());
+}
+
 bool ParticleSystemApp::checkSDLStatus()
 {
   bool stopRendering = false;
@@ -380,6 +405,8 @@ void ParticleSystemApp::run()
     checkMouseState();
 
     checkMidiNotes();
+
+    checkOscMessages();
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame(m_window);

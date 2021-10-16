@@ -37,7 +37,7 @@ void OscReader::stop()
 void OscReader::ProcessMessage(const osc::ReceivedMessage& m, const IpEndpointName& remoteEndpoint)
 {
   LOG_INFO("Receiving OSC input with thread {} ", std::hash<std::thread::id> {}(std::this_thread::get_id()));
-
+  std::lock_guard<std::mutex> guard(myMutex);
   (void)remoteEndpoint; // suppress unused parameter warning
   try
   {
@@ -86,13 +86,9 @@ void OscReader::ProcessMessage(const osc::ReceivedMessage& m, const IpEndpointNa
     { // parsing osc message from the ring
       // example #1 -- argument stream interface
       osc::ReceivedMessageArgumentStream args = m.ArgumentStream();
-      float a1; // ring orientation 1
-      float a2; // ring orientation 2
-      float a3; // ring orientation 3
-      int a4; //tap
-      args >> a1 >> a2 >> a3 >> a4 >> osc::EndMessage;
-      std::cout << "received ring message with arguments : "
-                << a1 << " " << a2 << " " << a3 << " " << a4 << "\n";
+      args >> max2c1 >> max2c2 >> max2c3 >> max2c4 >> osc::EndMessage;
+     // std::cout << "received ring message with arguments : "
+      //          << max2c1 << " " << max2c2 << " " << max2c3 << " " << max2c4 << "\n";
     }
     else
     {
@@ -106,4 +102,27 @@ void OscReader::ProcessMessage(const osc::ReceivedMessage& m, const IpEndpointNa
     std::cout << "error while parsing message: "
               << m.AddressPattern() << ": " << e.what() << "\n";
   }
+}
+
+Math::float3 OscReader::get_ring_orientation()
+{
+  std::lock_guard<std::mutex> guard(myMutex);
+  Math::float3 result;
+  result.x = max2c1;
+  result.y = max2c2;
+  result.z = max2c3;
+  return result;
+}
+
+
+float OscReader::get_ring_tap()
+{
+  std::lock_guard<std::mutex> guard(myMutex);
+  return max2c4;
+}
+
+float OscReader::get_ring_acceleration()
+{
+  std::lock_guard<std::mutex> guard(myMutex);
+  return max2c5;
 }
