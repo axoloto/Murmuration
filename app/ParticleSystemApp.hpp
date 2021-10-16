@@ -7,6 +7,10 @@
 #include "Model.hpp"
 #include "Parameters.hpp"
 #include "PhysicsWidget.hpp"
+
+#include "MidiReader.hpp"
+#include "OscReader.hpp"
+
 #include <SDL.h>
 #include <imgui.h>
 
@@ -16,7 +20,7 @@ class ParticleSystemApp
 {
   public:
   ParticleSystemApp();
-  ~ParticleSystemApp() = default;
+  ~ParticleSystemApp();
   void run();
   bool isInit() const { return m_init; }
 
@@ -26,17 +30,23 @@ class ParticleSystemApp
   bool initPhysicsEngine();
   bool initPhysicsWidget();
   bool initGraphicsWidget();
+  bool initMidiReader();
+  bool initOscReader();
   bool closeWindow();
   bool checkSDLStatus();
   void checkMouseState();
   void displayMainWidget();
   bool popUpMessage(const std::string& title, const std::string& message) const;
   bool isUsingIGPU() const;
+  void checkMidiNotes();
+  void checkOscMessages();
 
   std::unique_ptr<Physics::Model> m_physicsEngine;
   std::unique_ptr<Render::Engine> m_graphicsEngine;
   std::unique_ptr<UI::PhysicsWidget> m_physicsWidget;
   std::unique_ptr<UI::GraphicsWidget> m_graphicsWidget;
+  std::unique_ptr<IO::MidiReader> m_midiReader;
+  std::unique_ptr<IO::OscReader> m_oscReader;
 
   SDL_Window* m_window;
   SDL_GLContext m_OGLContext;

@@ -292,6 +292,9 @@ __kernel void updatePosWithBouncingWalls(//Input/output
                                                __global float4 *pos)     // 2
 
 {
+  if(length(pos[ID]) > 10.0f * ABS_WALL_POS)
+    return;
+
   const float4 newPos = pos[ID] + vel[ID] * timeStep;
   const float4 clampedNewPos = clamp(newPos, -ABS_WALL_POS, ABS_WALL_POS);
   
@@ -313,6 +316,9 @@ __kernel void updatePosWithCyclicWalls(//Input
                                       //Input/output
                                             __global float4 *pos)     // 2
 {
+  if(length(pos[ID]) > 10.0f * ABS_WALL_POS)
+    return;
+
   const float4 newPos = pos[ID] + vel[ID] * timeStep;
   float4 clampedNewPos = clamp(newPos, -ABS_WALL_POS, ABS_WALL_POS);
 
@@ -330,24 +336,34 @@ __kernel void updatePosWithCyclicWalls(//Input
   }
 
   pos[ID] = clampedNewPos;
+
 }
 
 /*
-  Apply Cyclic wall boundary conditions on position and velocity buffers.
+  Update particles life time, particles with life time equals to 0 are dead
 */
 __kernel void updateLifeTime(//Input/Output
-                             __global int *lifeTime, // 0
+                             __global int    *lifeTime, // 0
                              //Output
-                             __global float4 *pos)   // 1
+                             __global float4 *pos,      // 1
+                             __global float4 *col)      // 2
 {
   const int life = lifeTime[ID];
 
-  if (life < 0)
+  if (life == 0)
   {
-    pos[ID] = (float4)(1000000.0f, 100000.0f, 100000.0f, 1.0f);
+    // Going for a long long journey
+    pos[ID] = (float4)(1000.0f * ABS_WALL_POS, 1000.0f * ABS_WALL_POS, 1000.0f * ABS_WALL_POS, 1.0f);
+  }
+  else if(life < 200)
+  {
+    // Fading away
+    col[ID] *= 0.99f;
+    lifeTime[ID] -= 1;
   }
   else
   {
+    // Still alive
     lifeTime[ID] -= 1;
   }
 }

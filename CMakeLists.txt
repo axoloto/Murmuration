@@ -30,12 +30,16 @@ include_directories("physics")
 include_directories("render")
 include_directories("ui")
 include_directories("app")
+include_directories("midireader")
+include_directories("oscreader")
 
 add_subdirectory("utils")
 add_subdirectory("physics")
 add_subdirectory("render")
 add_subdirectory("ui")
 add_subdirectory("app")
+add_subdirectory("midireader")
+add_subdirectory("oscreader")
 
 # Packaging support
 set(CPACK_PACKAGE_VENDOR "Adrien Moulin")

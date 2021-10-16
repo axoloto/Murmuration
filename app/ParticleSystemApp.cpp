@@ -23,6 +23,12 @@ constexpr auto GLSL_VERSION = "#version 130";
 
 namespace App
 {
+ParticleSystemApp::~ParticleSystemApp()
+{
+  m_midiReader->stop();
+  m_oscReader->stop();
+}
+
 bool ParticleSystemApp::initWindow()
 {
   // Setup SDL
@@ -92,6 +98,9 @@ bool ParticleSystemApp::initWindow()
 
 bool ParticleSystemApp::closeWindow()
 {
+  m_midiReader->stop();
+  m_oscReader->stop();
+
   ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
@@ -126,6 +135,56 @@ void ParticleSystemApp::checkMouseState()
     m_graphicsEngine->checkMouseEvents(Render::UserAction::TRANSLATION, fDelta);
     m_mousePrevPos = currentMousePos;
   }
+}
+
+void ParticleSystemApp::checkMidiNotes()
+{
+  if (!m_midiReader)
+    return;
+
+  std::list<IO::Note> listNotes = m_midiReader->getAllNotes();
+
+  for (const auto& note : listNotes)
+  {
+    auto rgb = note.getRgb();
+    Math::float3 pos = note.getPos();
+    Math::float3 vel = -pos / 1000.0f;
+    int lifeTime = 300 + note.getVelocity();
+    m_physicsEngine->addParticleEmitter(pos, vel, rgb, lifeTime);
+  }
+
+  if (listNotes.size() > 0)
+  {
+    // Test
+    Math::float2 fDelta(listNotes.back().getBeat() / 10.0f, 0.0f);
+    m_graphicsEngine->checkMouseEvents(Render::UserAction::ROTATION, fDelta);
+  }
+  //m_physicsEngine->setVelocity(listNotes.back().getBeat());
+}
+
+void ParticleSystemApp::checkOscMessages()
+{
+  auto* boidsEngine = dynamic_cast<Physics::Boids*>(m_physicsEngine.get());
+  if (!boidsEngine)
+    return;
+  Math::float3 orientation = m_oscReader->get_ring_orientation();
+  Math::float3 vel = - orientation / 100.0f;
+  Math::float3 rgb;
+  rgb.x = 1.0f;
+  rgb.y = 1.0f;
+  rgb.z = 1.0f;
+  int lifeTime = 300;
+  float tap = m_oscReader->get_ring_tap();
+  float separation = tap *3.0f;
+  float acceleration = m_oscReader->get_ring_acceleration();
+  if (tap > 0.1)
+  {
+    m_physicsEngine->addParticleEmitter(orientation, vel, rgb, lifeTime);
+  }
+  boidsEngine->setScaleSeparation(acceleration);
+  //boidsEngine->setScaleCohesion(separation);
+ // boidsEngine->setScaleAlignement(separation);
+  //m_physicsEngine->setVelocity(listNotes.back().getBeat());
 }
 
 bool ParticleSystemApp::checkSDLStatus()
@@ -186,7 +245,7 @@ bool ParticleSystemApp::checkSDLStatus()
         size_t number = 64;
         Math::float3 pos = Math::float3(0.0f, 0.0f, 0.0f);
         Math::float3 col = Math::float3(0.0f, 1.0f, 1.0f);
-        m_physicsEngine->addParticleEmitter(number, pos, col);
+        m_physicsEngine->addParticleEmitter(pos, pos, col, 400);
       }
       else
       {
@@ -240,6 +299,16 @@ ParticleSystemApp::ParticleSystemApp()
   {
     LOG_ERROR("Failed to initialize physics widget");
     return;
+  }
+
+  if (!initMidiReader())
+  {
+    LOG_INFO("Failed to connect to Midi port, no instrument connected");
+  }
+
+  if (!initOscReader())
+  {
+    LOG_INFO("Failed to connect to Osc port, no instrument connected");
   }
 
   LOG_INFO("Application correctly initialized");
@@ -305,16 +374,39 @@ bool ParticleSystemApp::initPhysicsWidget()
   return (m_physicsWidget.get() != nullptr);
 }
 
+bool ParticleSystemApp::initMidiReader()
+{
+  m_midiReader = std::make_unique<IO::MidiReader>();
+
+  m_midiReader->start();
+
+  return (m_midiReader.get() != nullptr);
+}
+
+bool ParticleSystemApp::initOscReader()
+{
+  m_oscReader = std::make_unique<IO::OscReader>();
+
+  m_oscReader->start();
+
+  return (m_midiReader.get() != nullptr);
+}
+
 void ParticleSystemApp::run()
 {
   auto start = std::chrono::steady_clock::now();
 
   bool stopRendering = false;
+
   while (!stopRendering)
   {
     stopRendering = checkSDLStatus();
 
     checkMouseState();
+
+    checkMidiNotes();
+
+    checkOscMessages();
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame(m_window);
@@ -378,39 +470,6 @@ void ParticleSystemApp::displayMainWidget()
 
   if (!isInit())
     return;
-
-  /*
-  // Selection of the physical model
-  const auto& selModelName = (Physics::ALL_MODELS.find(m_modelType) != Physics::ALL_MODELS.end())
-      ? Physics::ALL_MODELS.find(m_modelType)->second
-      : Physics::ALL_MODELS.cbegin()->second;
-
-  if (ImGui::BeginCombo("Physical Model", selModelName.c_str()))
-  {
-    for (const auto& model : Physics::ALL_MODELS)
-    {
-      if (ImGui::Selectable(model.second.c_str(), m_modelType == model.first))
-      {
-        m_modelType = model.first;
-
-        if (!initPhysicsEngine())
-        {
-          LOG_ERROR("Failed to change physics engine");
-          return;
-        }
-
-        if (!initPhysicsWidget())
-        {
-          LOG_ERROR("Failed to change physics widget");
-          return;
-        }
-
-        LOG_INFO("Application correctly switched to {}", Physics::ALL_MODELS.find(m_modelType)->second);
-      }
-    }
-    ImGui::EndCombo();
-  }
-*/
 
   bool isOnPaused = m_physicsEngine->onPause();
   std::string pauseRun = isOnPaused ? "  Start  " : "  Pause  ";
@@ -513,6 +572,5 @@ int main(int, char**)
   {
     app.run();
   }
-
   return 0;
 }

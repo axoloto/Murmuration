@@ -48,12 +48,17 @@ Boids::Boids(ModelParams params)
     , m_activeAlignment(true)
     , m_activeSeparation(true)
     , m_activeCohesion(true)
+    , m_activeLifeTime(false) //WIP
     , m_simplifiedMode(true)
     , m_maxNbPartsInCell(3000)
     , m_radixSort(params.maxNbParticles)
     , m_target(std::make_unique<Target>(params.boxSize))
 {
   m_currNbParticles = Utils::NbParticles::P0;
+
+  m_particleLifes = std::vector<int>(params.maxNbParticles, -1);
+
+  m_firstParticleAliveIndex = 0;
 
   createProgram();
 
@@ -123,7 +128,7 @@ bool Boids::createKernels() const
   clContext.createKernel(PROGRAM_BOIDS, KERNEL_UPDATE_VEL, { "p_acc", "", "", "p_vel" });
   clContext.createKernel(PROGRAM_BOIDS, KERNEL_UPDATE_POS_BOUNCING, { "p_vel", "", "p_pos" });
   clContext.createKernel(PROGRAM_BOIDS, KERNEL_UPDATE_POS_CYCLIC, { "p_vel", "", "p_pos" });
-  clContext.createKernel(PROGRAM_BOIDS, KERNEL_UPDATE_LIFE_TIME, { "p_lifeTime", "p_pos" });
+  clContext.createKernel(PROGRAM_BOIDS, KERNEL_UPDATE_LIFE_TIME, { "p_lifeTime", "p_pos", "p_col" });
 
   // Radix Sort based on 3D grid
   clContext.createKernel(PROGRAM_BOIDS, KERNEL_RESET_CELL_ID, { "p_cellID" });
@@ -176,6 +181,7 @@ void Boids::reset()
     return;
 
   m_currNbParticles = Utils::NbParticles::P0;
+  m_particleLifes = std::vector<int>(m_maxNbParticles, -1);
 
   updateBoidsParamsInKernel();
 
@@ -224,33 +230,85 @@ void Boids::initBoidsParticles()
   clContext.releaseGLBuffers({ "p_pos", "p_col" });
 }
 
+void Boids::releaseDeadParticles()
+{
+  std::for_each(m_particleLifes.begin(), m_particleLifes.end(), [&](int& lifeTime)
+      {
+        // Particle is alive
+        if (lifeTime > 0)
+        {
+          --lifeTime;
+        }
+        // Particle is dead
+        if (lifeTime == 0)
+        {
+          --m_currNbParticles;
+          // Negative value -1 for buried particle
+          --lifeTime;
+        }
+      });
+
+  auto firstAliveIt = std::find_if(m_particleLifes.cbegin(), m_particleLifes.cend(), [](const int& lifeTime)
+      { return lifeTime > 0; });
+
+  // No particle alive, starting index must be 0
+  if (firstAliveIt == m_particleLifes.cend())
+    firstAliveIt = m_particleLifes.cbegin();
+
+  m_firstParticleAliveIndex = std::distance(m_particleLifes.cbegin(), firstAliveIt);
+
+  //LOG_INFO("first particle alive index {}", m_firstParticleAliveIndex);
+}
+
 // Must be called only if OpenGLBuffers p_pos and p_col has been acquired by OpenCL Context
-void Boids::emitParticles()
+void Boids::emitNewParticles()
 {
   CL::Context& clContext = CL::Context::Get();
 
+  //LOG_INFO("number of particle emitters {}", m_particleEmitters.size());
+
+  // Filling global buffers by the end
+  size_t nbTotalNewParticles = 0;
+  std::vector<size_t> particleOffsetIndex;
   for (const auto& emitter : m_particleEmitters)
   {
+    nbTotalNewParticles += emitter.getNbParticles();
+    particleOffsetIndex.push_back(m_maxNbParticles - nbTotalNewParticles);
+    //LOG_INFO("particle offset index {}", particleOffsetIndex.back());
+  }
+
+  size_t particleEmitterIndex = 0;
+  for (const auto& emitter : m_particleEmitters)
+  {
+    size_t particleOffset = particleOffsetIndex[particleEmitterIndex++];
+
     size_t nbNewParticles = emitter.getNbParticles();
+    int lifeTime = emitter.getParticlesLifeTime();
+
+    m_particleLifes.insert(m_particleLifes.cbegin() + m_firstParticleAliveIndex + m_currNbParticles, nbNewParticles, lifeTime);
 
     std::vector<std::array<float, 4>> tempBuffer(nbNewParticles, std::array<float, 4>({ 0.0f, 0.0f, 0.0f, 0.0f }));
 
     std::vector<Math::float3> newParticlesPos = emitter.getParticlesPos();
     std::transform(newParticlesPos.cbegin(), newParticlesPos.cend(), tempBuffer.begin(),
-        [](const Math::float3& vertPos) -> std::array<float, 4> { return { vertPos.x, vertPos.y, vertPos.z, 0.0f }; });
+        [](const Math::float3& pos) -> std::array<float, 4> { return { pos.x, pos.y, pos.z, 0.0f }; });
 
-    clContext.loadBufferFromHost("p_pos", 4 * sizeof(float) * m_currNbParticles, 4 * sizeof(float) * tempBuffer.size(), tempBuffer.data());
-    // Using same buffer to initialize vel, giving interesting patterns
-    clContext.loadBufferFromHost("p_vel", 4 * sizeof(float) * m_currNbParticles, 4 * sizeof(float) * tempBuffer.size(), tempBuffer.data());
+    clContext.loadBufferFromHost("p_pos", 4 * sizeof(float) * particleOffset, 4 * sizeof(float) * tempBuffer.size(), tempBuffer.data());
+
+    std::vector<Math::float3> newParticlesVel = emitter.getParticlesVel();
+    std::transform(newParticlesVel.cbegin(), newParticlesVel.cend(), tempBuffer.begin(),
+        [](const Math::float3& vel) -> std::array<float, 4> { return { vel.x, vel.y, vel.z, 0.0f }; });
+
+    clContext.loadBufferFromHost("p_vel", 4 * sizeof(float) * particleOffset, 4 * sizeof(float) * tempBuffer.size(), tempBuffer.data());
 
     std::vector<Math::float3> newParticlesCol = emitter.getParticlesCol();
     std::transform(newParticlesCol.cbegin(), newParticlesCol.cend(), tempBuffer.begin(),
         [](const Math::float3& vertCol) -> std::array<float, 4> { return { vertCol.x, vertCol.y, vertCol.z, 0.0f }; });
 
-    clContext.loadBufferFromHost("p_col", 4 * sizeof(float) * m_currNbParticles, 4 * sizeof(float) * tempBuffer.size(), tempBuffer.data());
+    clContext.loadBufferFromHost("p_col", 4 * sizeof(float) * particleOffset, 4 * sizeof(float) * tempBuffer.size(), tempBuffer.data());
 
-    std::vector<int> lifeTime(nbNewParticles, 500);
-    clContext.loadBufferFromHost("p_lifeTime", sizeof(int) * m_currNbParticles, sizeof(int) * lifeTime.size(), lifeTime.data());
+    std::vector<int> newParticlesLife(nbNewParticles, lifeTime);
+    clContext.loadBufferFromHost("p_lifeTime", sizeof(int) * particleOffset, sizeof(int) * newParticlesLife.size(), newParticlesLife.data());
 
     m_currNbParticles += nbNewParticles;
   }
@@ -269,12 +327,13 @@ void Boids::update()
 
   if (!m_pause)
   {
-    emitParticles();
+    //releaseDeadParticles();
+    emitNewParticles();
 
     float timeStep = 0.1f;
-    clContext.runKernel(KERNEL_FILL_CELL_ID, m_currNbParticles);
+    clContext.runKernel(KERNEL_FILL_CELL_ID, m_maxNbParticles);
 
-    m_radixSort.sort("p_cellID", { "p_pos", "p_col", "p_vel", "p_acc" });
+    m_radixSort.sort("p_cellID", { "p_pos", "p_col", "p_vel", "p_acc" }, { "p_lifeTime" });
 
     clContext.runKernel(KERNEL_RESET_START_END_CELL, m_nbCells);
     clContext.runKernel(KERNEL_FILL_START_CELL, m_currNbParticles);
@@ -314,14 +373,16 @@ void Boids::update()
 
     clContext.runKernel(KERNEL_RESET_PART_DETECTOR, m_nbCells);
     clContext.runKernel(KERNEL_FILL_PART_DETECTOR, m_currNbParticles);
+
+    // WIP
+    if (m_activeLifeTime)
+      clContext.runKernel(KERNEL_UPDATE_LIFE_TIME, m_currNbParticles);
   }
 
-  // WIP, not working yet
-  //clContext.runKernel(KERNEL_UPDATE_LIFE_TIME, m_currNbParticles);
+  // WIP
+  // clContext.runKernel(KERNEL_FILL_CAMERA_DIST, m_currNbParticles);
 
-  clContext.runKernel(KERNEL_FILL_CAMERA_DIST, m_currNbParticles);
-
-  m_radixSort.sort("p_cameraDist", { "p_pos", "p_col", "p_vel", "p_acc" });
+  // m_radixSort.sort("p_cameraDist", { "p_pos", "p_col", "p_vel", "p_acc" });
 
   clContext.releaseGLBuffers({ "p_pos", "p_col", "c_partDetector", "u_cameraPos" });
 }

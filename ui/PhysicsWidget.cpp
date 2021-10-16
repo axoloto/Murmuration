@@ -1,7 +1,7 @@
 #include "PhysicsWidget.hpp"
 #include "Logging.hpp"
 #include "Parameters.hpp"
-
+#include "RtMidi.h"
 #include <imgui.h>
 
 void UI::PhysicsWidget::display()
@@ -13,7 +13,9 @@ void UI::PhysicsWidget::display()
   ImGui::SetNextWindowPos(ImVec2(15, 355), ImGuiCond_FirstUseEver);
 
   if (boidsEngine)
+  {
     displayBoidsParameters(boidsEngine);
+  }
   else if (fluidsEngine)
     displayFluidsParameters(fluidsEngine);
 }
@@ -156,11 +158,22 @@ void UI::PhysicsWidget::displayBoidsParameters(Physics::Boids* boidsEngine)
 
   ImGui::Spacing();
   ImGui::Separator();
+  ImGui::Text("Life Time");
+  ImGui::Spacing();
+
+  bool isLifeTime = boidsEngine->isLifeTimeActivated();
+  if (ImGui::Checkbox("Activate##LifeTime", &isLifeTime))
+  {
+    boidsEngine->activateLifeTime(isLifeTime);
+  }
+
+  ImGui::Spacing();
+  ImGui::Separator();
   ImGui::Text("Target");
   ImGui::Spacing();
 
   bool isTarget = boidsEngine->isTargetActivated();
-  if (ImGui::Checkbox("Activate", &isTarget))
+  if (ImGui::Checkbox("Activate##Target", &isTarget))
   {
     boidsEngine->activateTarget(isTarget);
     boidsEngine->setTargetVisibility(isTarget);

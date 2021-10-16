@@ -28,7 +28,7 @@ struct ModelParams
 class Model
 {
   public:
-  Model(ModelParams params, Dimension dimension = Dimension::dim2D)
+  Model(ModelParams params, Dimension dimension = Dimension::dim3D)
       : m_maxNbParticles(params.maxNbParticles)
       , m_currNbParticles(params.currNbParticles)
       , m_boxSize(params.boxSize)
@@ -49,9 +49,9 @@ class Model
     CL::Context::Get().release();
   };
 
-  void addParticleEmitter(size_t nbParts, const Math::float3& origin, const Math::float3& col)
+  void addParticleEmitter(const Math::float3& initPos, const Math::float3& initVel, const Math::float3& col, int lifeTime)
   {
-    m_particleEmitters.push_back(ParticleEmitter(m_dimension, nbParts, origin, col));
+    m_particleEmitters.push_back(ParticleEmitter(m_dimension, initPos, initVel, col, lifeTime));
   }
 
   void clearParticleEmitterList() { m_particleEmitters.clear(); }

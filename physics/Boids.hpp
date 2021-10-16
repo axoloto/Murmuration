@@ -112,6 +112,13 @@ class Boids : public Model
   }
   int targetSignEffect() const { return m_target ? m_target->signEffect() : 0; }
 
+  //
+  void activateLifeTime(bool activatelifeTime)
+  {
+    m_activeLifeTime = activatelifeTime;
+  }
+  bool isLifeTimeActivated() const { return m_activeLifeTime; }
+
   private:
   void initBoidsParticles();
   bool createProgram() const;
@@ -119,11 +126,13 @@ class Boids : public Model
   bool createKernels() const;
   void updateBoidsParamsInKernel();
   void updateGridParamsInKernel();
-  void emitParticles();
+  void emitNewParticles();
+  void releaseDeadParticles();
 
   bool m_activeAlignment;
   bool m_activeCohesion;
   bool m_activeSeparation;
+  bool m_activeLifeTime;
 
   float m_scaleAlignment;
   float m_scaleCohesion;
@@ -131,6 +140,9 @@ class Boids : public Model
 
   bool m_simplifiedMode;
   size_t m_maxNbPartsInCell;
+
+  size_t m_firstParticleAliveIndex;
+  std::vector<int> m_particleLifes;
 
   std::unique_ptr<Target> m_target;
 

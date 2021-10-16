@@ -5,7 +5,7 @@
 # Requirements
 
 - [Gitbash](https://git-scm.com/downloads)
-- [Python](https://www.python.org/) (>= 3.5) and [pip](https://pypi.org/project/pip/)
+- [Python](https://www.python.org/) (>= 3.5) and [pip](https://pypi.org/project/pip)
 - [Conan](https://conan.io/)
 - [CMake](https://cmake.org/download/)
 - [NSIS](http://nsis.sourceforge.net/) (only for packaging the installer)
