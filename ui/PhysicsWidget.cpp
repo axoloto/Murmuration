@@ -172,7 +172,7 @@ void UI::PhysicsWidget::displayBoidsParameters(Physics::Boids* boidsEngine)
   if (isLifeTime)
   {
     int lifeTime = boidsEngine->lifeTime();
-    if (ImGui::SliderInt("##lifeTime", &lifeTime, 50.0f, 700.0f))
+    if (ImGui::SliderInt("##lifeTime", &lifeTime, 50.0f, 1500.0f))
     {
       boidsEngine->setLifeTime(lifeTime);
     }
