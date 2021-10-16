@@ -169,6 +169,15 @@ void UI::PhysicsWidget::displayBoidsParameters(Physics::Boids* boidsEngine)
     boidsEngine->activateLifeTime(isLifeTime);
   }
 
+  if (isLifeTime)
+  {
+    int lifeTime = boidsEngine->lifeTime();
+    if (ImGui::SliderInt("##lifeTime", &lifeTime, 50.0f, 700.0f))
+    {
+      boidsEngine->setLifeTime(lifeTime);
+    }
+  }
+
   ImGui::Spacing();
   ImGui::Separator();
   ImGui::Text("Target");

@@ -150,8 +150,7 @@ void ParticleSystemApp::checkMidiNotes()
     auto rgb = note.getRgb();
     Math::float3 pos = note.getPos();
     Math::float3 vel = -pos / 1000.0f;
-    int lifeTime = 400 + note.getVelocity();
-    m_physicsEngine->addParticleEmitter(pos, vel, rgb, lifeTime);
+    m_physicsEngine->addParticleEmitter(pos, vel, rgb);
   }
 
   if (listNotes.size() > 0)
@@ -171,7 +170,6 @@ void ParticleSystemApp::checkOscMessages()
   Math::float3 orientation = (m_oscReader->get_ring_orientation() - Math::float3(0.5f, 0.5f, 0.5f)) * (float)Utils::BOX_SIZE;
   Math::float3 vel = -orientation / 100.0f;
   Math::float3 rgb;
-  int lifeTime = 300;
   float tap = m_oscReader->get_ring_tap();
   float separation = tap * 3.0f;
   float acceleration = m_oscReader->get_ring_acceleration();
@@ -189,7 +187,7 @@ void ParticleSystemApp::checkOscMessages()
       rgb.z = 1.0f * (acceleration - 0.3f) / 0.7f * (1.5f - roll);
     else
       rgb.z = 1.0f * (acceleration - 0.3f) / 0.7f * (roll)*2.0f;
-    m_physicsEngine->addParticleEmitter(orientation, vel, rgb, lifeTime);
+    m_physicsEngine->addParticleEmitter(orientation, vel, rgb);
   }
   boidsEngine->setScaleSeparation(acceleration * 2.0f);
   //boidsEngine->setScaleCohesion(separation);
@@ -255,7 +253,7 @@ bool ParticleSystemApp::checkSDLStatus()
         size_t number = 64;
         Math::float3 pos = Math::float3(0.0f, 0.0f, 0.0f);
         Math::float3 col = Math::float3(0.0f, 1.0f, 1.0f);
-        m_physicsEngine->addParticleEmitter(pos, pos, col, 400);
+        m_physicsEngine->addParticleEmitter(pos, pos, col);
       }
       else
       {
