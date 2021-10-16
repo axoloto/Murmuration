@@ -9,6 +9,7 @@
 #include "PhysicsWidget.hpp"
 
 #include "MidiReader.hpp"
+#include "OscReader.hpp"
 
 #include <SDL.h>
 #include <imgui.h>
@@ -43,6 +44,7 @@ class ParticleSystemApp
   std::unique_ptr<UI::PhysicsWidget> m_physicsWidget;
   std::unique_ptr<UI::GraphicsWidget> m_graphicsWidget;
   std::unique_ptr<IO::MidiReader> m_midiReader;
+  std::unique_ptr<IO::OscReader> m_oscReader;
 
   SDL_Window* m_window;
   SDL_GLContext m_OGLContext;
