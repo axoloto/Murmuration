@@ -65,6 +65,10 @@ void callback(double deltatime, std::vector<unsigned char>* message, void* userD
     LOG_INFO("Beat estimated is : {} ", (double)beat / duration);
     LOG_INFO("We are creating particles from note {} at speed {}", (int)message->at(1), (int)message->at(2));
     int degree = ((int)message->at(1) - key) % 12;
+    if (degree < 0)
+    {
+      degree = 12 + degree;
+    }
     int octave = (((int)message->at(1) - key) / 12) + 1;
 
     Math::float3 rgb;
@@ -74,8 +78,8 @@ void callback(double deltatime, std::vector<unsigned char>* message, void* userD
 
     Math::float3 pos;
     pos.x = std::min(std::max((float)degree / 12.0f + (float)octave / 9.0f * sizeBox - sizeBox / 2.0f + rayon * cos((float)degree / 12.0f * 2.0f * Math::PI_F), -sizeBox / 2.0f), sizeBox / 2.0f);
-    pos.y = std::min(std::max((float)degree / 12.0f + (float)octave / 9.0f * sizeBox - sizeBox / 2.0f + rayon * sin((float)degree / 12.0f * 2.0f * Math::PI_F), -sizeBox / 2.0f), sizeBox / 2.0f);
-    pos.z = std::min(std::max((float)degree / 12.0f + (float)octave / 8.0f * sizeBox - sizeBox / 2.0f, -sizeBox / 2.0f), sizeBox / 2.0f);
+    pos.z = std::min(std::max((float)degree / 12.0f + (float)octave / 9.0f * sizeBox - sizeBox / 2.0f + rayon * sin((float)degree / 12.0f * 2.0f * Math::PI_F), -sizeBox / 2.0f), sizeBox / 2.0f);
+    pos.y = std::min(std::max((float)degree / 12.0f + (float)octave / 9.0f * sizeBox - sizeBox / 2.0f, -sizeBox / 2.0f), sizeBox / 2.0f);
 
     Note note((int)message->at(1), (int)message->at(2), beat, rgb, pos);
 
@@ -104,7 +108,8 @@ void callback(double deltatime, std::vector<unsigned char>* message, void* userD
   else if ((int)message->at(0) == 176 && (int)message->at(1) == 64)
   {
     //std::cout << "Pedal point value is " << (int)message->at(2) << std::endl;
-    pedalPoint = (int)message->at(2);
+    //pedalPoint = (int)message->at(2);
+    pedalPoint = 0;
     if (pedalPoint == 0) // we destroy all the queued notes
     {
       playingNotes->remove_all_hanging_notes();
