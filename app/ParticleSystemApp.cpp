@@ -167,7 +167,7 @@ void ParticleSystemApp::checkOscMessages()
   auto* boidsEngine = dynamic_cast<Physics::Boids*>(m_physicsEngine.get());
   if (!boidsEngine)
     return;
-  Math::float3 orientation = m_oscReader->get_ring_orientation();
+  Math::float3 orientation = (m_oscReader->get_ring_orientation() - Math::float3(0.5f, 0.5f, 0.5f)) * 20.0f ;
   Math::float3 vel = - orientation / 100.0f;
   Math::float3 rgb;
   rgb.x = 1.0f;
@@ -176,7 +176,7 @@ void ParticleSystemApp::checkOscMessages()
   int lifeTime = 300;
   float tap = m_oscReader->get_ring_tap();
   float separation = tap *3.0f;
-  float acceleration = m_oscReader->get_ring_acceleration();
+  float acceleration = m_oscReader->get_ring_acceleration() * 3.0f;
   if (tap > 0.1)
   {
     m_physicsEngine->addParticleEmitter(orientation, vel, rgb, lifeTime);
@@ -184,7 +184,7 @@ void ParticleSystemApp::checkOscMessages()
   boidsEngine->setScaleSeparation(acceleration);
   //boidsEngine->setScaleCohesion(separation);
  // boidsEngine->setScaleAlignement(separation);
-  //m_physicsEngine->setVelocity(listNotes.back().getBeat());
+  m_physicsEngine->setVelocity(0.1f +acceleration);
 }
 
 bool ParticleSystemApp::checkSDLStatus()
