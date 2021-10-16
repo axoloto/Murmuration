@@ -5,7 +5,7 @@
 #include <list>
 #include <mutex>
 
-namespace Midi
+namespace IO
 {
 class PlayingNotes
 {

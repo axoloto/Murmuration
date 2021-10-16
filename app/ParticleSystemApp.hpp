@@ -8,7 +8,7 @@
 #include "Parameters.hpp"
 #include "PhysicsWidget.hpp"
 
-#include "Reader.hpp"
+#include "MidiReader.hpp"
 
 #include <SDL.h>
 #include <imgui.h>
@@ -42,7 +42,7 @@ class ParticleSystemApp
   std::unique_ptr<Render::Engine> m_graphicsEngine;
   std::unique_ptr<UI::PhysicsWidget> m_physicsWidget;
   std::unique_ptr<UI::GraphicsWidget> m_graphicsWidget;
-  std::unique_ptr<Midi::Reader> m_midiReader;
+  std::unique_ptr<IO::MidiReader> m_midiReader;
 
   SDL_Window* m_window;
   SDL_GLContext m_OGLContext;

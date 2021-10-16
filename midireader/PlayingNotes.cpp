@@ -1,6 +1,6 @@
 #include "PlayingNotes.hpp"
 #include "Logging.hpp"
-using namespace Midi;
+using namespace IO;
 
 void PlayingNotes::add(Note note)
 {

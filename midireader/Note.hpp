@@ -2,7 +2,7 @@
 
 #include "Math.hpp"
 
-namespace Midi
+namespace IO
 {
 class Note
 {

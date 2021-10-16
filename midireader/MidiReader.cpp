@@ -1,4 +1,4 @@
-#include "Reader.hpp"
+#include "MidiReader.hpp"
 #include "RtMidi.h"
 #include <ctime>
 
@@ -17,13 +17,13 @@ int scale[12][3] = { { 0, 0, 51 }, { 51, 0, 0 }, { 51, 25, 0 }, { 51, 0, 0 }, { 
         m7th = red 51 0 0
         7th = yellow 51 51 0*/
 
-using namespace Midi;
+using namespace IO;
 
-Reader::Reader()
+MidiReader::MidiReader()
 {
 }
 
-Reader::~Reader()
+MidiReader::~MidiReader()
 {
   stop();
 }
@@ -77,7 +77,7 @@ void callback(double deltatime, std::vector<unsigned char>* message, void* userD
     pos.y = std::min(std::max((float)degree / 12.0f + (float)octave / 9.0f * sizeBox - sizeBox / 2.0f + rayon * sin((float)degree / 12.0f * 2.0f * Math::PI_F), -sizeBox / 2.0f), sizeBox / 2.0f);
     pos.z = std::min(std::max((float)degree / 12.0f + (float)octave / 8.0f * sizeBox - sizeBox / 2.0f, -sizeBox / 2.0f), sizeBox / 2.0f);
 
-    Midi::Note note((int)message->at(1), (int)message->at(2), beat, rgb, pos);
+    Note note((int)message->at(1), (int)message->at(2), beat, rgb, pos);
 
     playingNotes->add(note);
 
@@ -112,12 +112,12 @@ void callback(double deltatime, std::vector<unsigned char>* message, void* userD
   }
 }
 
-void Reader::stop()
+void MidiReader::stop()
 {
   m_rtMidiThread->closePort();
 }
 
-void Reader::start()
+void MidiReader::start()
 {
   try
   {
@@ -151,12 +151,12 @@ void Reader::start()
   }
 }
 
-std::list<Note> Reader::getAllNotes()
+std::list<Note> MidiReader::getAllNotes()
 {
   return m_playedNotes.getAllNotes();
 }
 
-bool Reader::chooseMidiPort()
+bool MidiReader::chooseMidiPort()
 {
   std::string portName;
   unsigned int i = 0, nPorts = m_rtMidiThread->getPortCount();

@@ -132,14 +132,14 @@ void ParticleSystemApp::checkMouseState()
 
 void ParticleSystemApp::checkMidiNotes()
 {
-  std::list<Midi::Note> listNotes = m_midiReader->getAllNotes();
+  std::list<IO::Note> listNotes = m_midiReader->getAllNotes();
 
   for (const auto& note : listNotes)
   {
     auto rgb = note.getRgb();
     Math::float3 pos = note.getPos();
     Math::float3 vel = -pos / 100.0f;
-    int lifeTime = 200 + note.getVelocity();
+    int lifeTime = 300 + note.getVelocity();
 
     LOG_INFO("Adding particle emitter");
     m_physicsEngine->addParticleEmitter(pos, vel, rgb, lifeTime);
@@ -331,7 +331,7 @@ bool ParticleSystemApp::initPhysicsWidget()
 
 bool ParticleSystemApp::initMidiReader()
 {
-  m_midiReader = std::make_unique<Midi::Reader>();
+  m_midiReader = std::make_unique<IO::MidiReader>();
 
   m_midiReader->start();
 

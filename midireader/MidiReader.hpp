@@ -4,13 +4,13 @@
 #include "PlayingNotes.hpp"
 #include "RtMidi.h"
 
-namespace Midi
+namespace IO
 {
-class Reader
+class MidiReader
 {
   public:
-  Reader();
-  ~Reader();
+  MidiReader();
+  ~MidiReader();
 
   bool chooseMidiPort();
   void start();
