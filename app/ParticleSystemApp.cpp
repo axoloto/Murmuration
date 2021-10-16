@@ -132,7 +132,10 @@ void ParticleSystemApp::checkMouseState()
 
 void ParticleSystemApp::checkMidiNotes()
 {
-  const std::list<IO::Note>& listNotes = m_midiReader->getAllNotes();
+  if (!m_midiReader)
+    return;
+
+  std::list<IO::Note> listNotes = m_midiReader->getAllNotes();
 
   for (const auto& note : listNotes)
   {

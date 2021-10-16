@@ -28,15 +28,6 @@ MidiReader::~MidiReader()
   stop();
 }
 
-void mycallback(double deltatime, std::vector<unsigned char>* message, void* userData)
-{
-  unsigned int nBytes = message->size();
-  for (unsigned int i = 0; i < nBytes; i++)
-    std::cout << "Byte " << i << " = " << (int)message->at(i) << ", ";
-  if (nBytes > 0)
-    std::cout << "stamp = " << deltatime << std::endl;
-}
-
 //Ugliness at its finest
 int beat = 1;
 int pedalPoint = 0;
@@ -126,28 +117,19 @@ void MidiReader::start()
 {
   try
   {
-    LOG_INFO("Starting reading MIDI input");
-
-    // RtMidiIn constructor
     m_rtMidiThread = std::make_unique<RtMidiIn>();
 
-    //auto midiin = std::make_unique<RtMidiIn>();
-
-    // Call function to select port.
-    // if (chooseMidiPort(midiin.get()))
     if (chooseMidiPort())
     {
       LOG_INFO("Starting reading MIDI input");
 
-      // Set our callback function.  This should be done immediately after
+      // Set our callback function. This should be done immediately after
       // opening the port to avoid having incoming messages written to the
       // queue instead of sent to the callback function.
       m_rtMidiThread->setCallback(&callback, &m_playedNotes);
 
       // Don't ignore sysex, timing, or active sensing messages.
       m_rtMidiThread->ignoreTypes(false, false, false);
-
-      LOG_INFO("Starting reading MIDI input");
     }
   }
   catch (RtMidiError& error)
@@ -163,34 +145,14 @@ std::list<Note> MidiReader::getAllNotes()
 
 bool MidiReader::chooseMidiPort()
 {
-  std::string portName;
-  unsigned int i = 0, nPorts = m_rtMidiThread->getPortCount();
-  if (nPorts == 0)
+  if (m_rtMidiThread->getPortCount() == 0)
   {
-    std::cout << "No input ports available!" << std::endl;
+    LOG_INFO("No input MIDI ports available!");
     return false;
   }
 
-  if (nPorts == 1)
-  {
-    std::cout << "\nOpening " << m_rtMidiThread->getPortName() << std::endl;
-  }
-  else
-  {
-    for (i = 0; i < nPorts; i++)
-    {
-      portName = m_rtMidiThread->getPortName(i);
-      std::cout << "  Input port #" << i << ": " << portName << '\n';
-    }
-
-    do
-    {
-      std::cout << "\nChoose a port number: ";
-      std::cin >> i;
-    } while (i >= nPorts);
-  }
-
-  m_rtMidiThread->openPort(i);
+  // Always opening port 0 by default for now
+  m_rtMidiThread->openPort(0);
 
   return true;
 }
