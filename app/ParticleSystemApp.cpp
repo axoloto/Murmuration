@@ -23,6 +23,12 @@ constexpr auto GLSL_VERSION = "#version 130";
 
 namespace App
 {
+ParticleSystemApp::~ParticleSystemApp()
+{
+  m_midiReader->stop();
+  m_oscReader->stop();
+}
+
 bool ParticleSystemApp::initWindow()
 {
   // Setup SDL
@@ -93,6 +99,7 @@ bool ParticleSystemApp::initWindow()
 bool ParticleSystemApp::closeWindow()
 {
   m_midiReader->stop();
+  m_oscReader->stop();
 
   ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplSDL2_Shutdown();
@@ -274,6 +281,11 @@ ParticleSystemApp::ParticleSystemApp()
     LOG_INFO("Failed to connect to Midi port, no instrument connected");
   }
 
+  if (!initOscReader())
+  {
+    LOG_INFO("Failed to connect to Osc port, no instrument connected");
+  }
+
   LOG_INFO("Application correctly initialized");
 
   m_init = true;
@@ -342,6 +354,15 @@ bool ParticleSystemApp::initMidiReader()
   m_midiReader = std::make_unique<IO::MidiReader>();
 
   m_midiReader->start();
+
+  return (m_midiReader.get() != nullptr);
+}
+
+bool ParticleSystemApp::initOscReader()
+{
+  m_oscReader = std::make_unique<IO::OscReader>();
+
+  m_oscReader->start();
 
   return (m_midiReader.get() != nullptr);
 }

@@ -1,5 +1,5 @@
 
-file(GLOB SRC "*.cpp" "*.h")
+file(GLOB SRC "*.cpp" "*.h" "*.hpp")
 
 add_library(oscreader ${SRC})
 

@@ -20,7 +20,7 @@ class ParticleSystemApp
 {
   public:
   ParticleSystemApp();
-  ~ParticleSystemApp() = default;
+  ~ParticleSystemApp();
   void run();
   bool isInit() const { return m_init; }
 
@@ -31,6 +31,7 @@ class ParticleSystemApp
   bool initPhysicsWidget();
   bool initGraphicsWidget();
   bool initMidiReader();
+  bool initOscReader();
   bool closeWindow();
   bool checkSDLStatus();
   void checkMouseState();

@@ -48,7 +48,7 @@ Boids::Boids(ModelParams params)
     , m_activeAlignment(true)
     , m_activeSeparation(true)
     , m_activeCohesion(true)
-    , m_activeLifeTime(true)
+    , m_activeLifeTime(false) //WIP
     , m_simplifiedMode(true)
     , m_maxNbPartsInCell(3000)
     , m_radixSort(params.maxNbParticles)
@@ -57,6 +57,8 @@ Boids::Boids(ModelParams params)
   m_currNbParticles = Utils::NbParticles::P0;
 
   m_particleLifes = std::vector<int>(params.maxNbParticles, -1);
+
+  m_firstParticleAliveIndex = 0;
 
   createProgram();
 
@@ -325,7 +327,7 @@ void Boids::update()
 
   if (!m_pause)
   {
-    releaseDeadParticles();
+    //releaseDeadParticles();
     emitNewParticles();
 
     float timeStep = 0.1f;
