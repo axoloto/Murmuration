@@ -16,6 +16,7 @@ using namespace Physics;
 #define KERNEL_SCAN "scan"
 #define KERNEL_REORDER "reorder"
 #define KERNEL_PERMUTATE_FLOAT4 "permutateFloat4"
+#define KERNEL_PERMUTATE_FLOAT "permutateFloat"
 #define KERNEL_PERMUTATE_INT "permutateInt"
 
 RadixSort::RadixSort(size_t numEntities)
@@ -88,6 +89,7 @@ bool RadixSort::createBuffers() const
   clContext.createBuffer("RadixSortIndicesTemp", sizeof(unsigned int) * m_numEntities, CL_MEM_READ_WRITE);
 
   clContext.createBuffer("RadixSortPermutateTempFloat4", 4 * sizeof(float) * m_numEntities, CL_MEM_READ_WRITE);
+  clContext.createBuffer("RadixSortPermutateTempFloat", sizeof(float) * m_numEntities, CL_MEM_READ_WRITE);
   clContext.createBuffer("RadixSortPermutateTempInt", sizeof(int) * m_numEntities, CL_MEM_READ_WRITE);
 
   return true;
@@ -113,6 +115,7 @@ bool RadixSort::createKernels() const
   clContext.setKernelArg(KERNEL_REORDER, 7, sizeof(unsigned int) * m_numRadix * m_numItems, nullptr);
 
   clContext.createKernel(PROGRAM_RADIXSORT, KERNEL_PERMUTATE_FLOAT4, { "RadixSortIndices" });
+  clContext.createKernel(PROGRAM_RADIXSORT, KERNEL_PERMUTATE_FLOAT, { "RadixSortIndices" });
   clContext.createKernel(PROGRAM_RADIXSORT, KERNEL_PERMUTATE_INT, { "RadixSortIndices" });
 
   return true;
@@ -167,9 +170,9 @@ void RadixSort::sort(const std::string& inputKeyBufferName, const std::vector<st
 
   for (const auto& bufferToPermutate : optionalInputIntNames)
   {
-    clContext.copyBuffer(bufferToPermutate, "RadixSortPermutateTempInt");
-    clContext.setKernelArg(KERNEL_PERMUTATE_INT, 1, "RadixSortPermutateTempInt");
-    clContext.setKernelArg(KERNEL_PERMUTATE_INT, 2, bufferToPermutate);
-    clContext.runKernel(KERNEL_PERMUTATE_INT, m_numEntities);
+    clContext.copyBuffer(bufferToPermutate, "RadixSortPermutateTempFloat");
+    clContext.setKernelArg(KERNEL_PERMUTATE_FLOAT, 1, "RadixSortPermutateTempFloat");
+    clContext.setKernelArg(KERNEL_PERMUTATE_FLOAT, 2, bufferToPermutate);
+    clContext.runKernel(KERNEL_PERMUTATE_FLOAT, m_numEntities);
   }
 }
