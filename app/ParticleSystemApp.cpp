@@ -132,18 +132,24 @@ void ParticleSystemApp::checkMouseState()
 
 void ParticleSystemApp::checkMidiNotes()
 {
-  std::list<IO::Note> listNotes = m_midiReader->getAllNotes();
+  const std::list<IO::Note>& listNotes = m_midiReader->getAllNotes();
 
   for (const auto& note : listNotes)
   {
     auto rgb = note.getRgb();
     Math::float3 pos = note.getPos();
-    Math::float3 vel = -pos / 100.0f;
+    Math::float3 vel = -pos / 1000.0f;
     int lifeTime = 300 + note.getVelocity();
-
-    LOG_INFO("Adding particle emitter");
     m_physicsEngine->addParticleEmitter(pos, vel, rgb, lifeTime);
   }
+
+  if (listNotes.size() > 0)
+  {
+    // Test
+    Math::float2 fDelta(listNotes.back().getBeat() / 10.0f, 0.0f);
+    m_graphicsEngine->checkMouseEvents(Render::UserAction::ROTATION, fDelta);
+  }
+  //m_physicsEngine->setVelocity(listNotes.back().getBeat());
 }
 
 bool ParticleSystemApp::checkSDLStatus()
@@ -262,8 +268,7 @@ ParticleSystemApp::ParticleSystemApp()
 
   if (!initMidiReader())
   {
-    LOG_ERROR("Failed to connect to Midi port");
-    return;
+    LOG_INFO("Failed to connect to Midi port, no instrument connected");
   }
 
   LOG_INFO("Application correctly initialized");
@@ -349,6 +354,7 @@ void ParticleSystemApp::run()
     stopRendering = checkSDLStatus();
 
     checkMouseState();
+
     checkMidiNotes();
 
     ImGui_ImplOpenGL3_NewFrame();

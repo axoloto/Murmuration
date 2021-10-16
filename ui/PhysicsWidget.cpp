@@ -15,7 +15,6 @@ void UI::PhysicsWidget::display()
   if (boidsEngine)
   {
     displayBoidsParameters(boidsEngine);
-    LOG_DEBUG("Started Boidssssss");
   }
   else if (fluidsEngine)
     displayFluidsParameters(fluidsEngine);
@@ -163,7 +162,7 @@ void UI::PhysicsWidget::displayBoidsParameters(Physics::Boids* boidsEngine)
   ImGui::Spacing();
 
   bool isLifeTime = boidsEngine->isLifeTimeActivated();
-  if (ImGui::Checkbox("Activate", &isLifeTime))
+  if (ImGui::Checkbox("Activate##LifeTime", &isLifeTime))
   {
     boidsEngine->activateLifeTime(isLifeTime);
   }
@@ -174,7 +173,7 @@ void UI::PhysicsWidget::displayBoidsParameters(Physics::Boids* boidsEngine)
   ImGui::Spacing();
 
   bool isTarget = boidsEngine->isTargetActivated();
-  if (ImGui::Checkbox("Activate", &isTarget))
+  if (ImGui::Checkbox("Activate##Target", &isTarget))
   {
     boidsEngine->activateTarget(isTarget);
     boidsEngine->setTargetVisibility(isTarget);

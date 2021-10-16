@@ -17,6 +17,7 @@ class Note
   };
   int getPitch() const { return m_note; }
   int getVelocity() const { return m_velocity; }
+  double getBeat() const { return m_beat; }
   Math::float3 getRgb() const { return m_rgb; }
   Math::float3 getPos() const { return m_pos; }
 

@@ -52,10 +52,11 @@ Boids::Boids(ModelParams params)
     , m_simplifiedMode(true)
     , m_maxNbPartsInCell(3000)
     , m_radixSort(params.maxNbParticles)
-    , m_particleLifes(params.maxNbParticles, -1)
     , m_target(std::make_unique<Target>(params.boxSize))
 {
   m_currNbParticles = Utils::NbParticles::P0;
+
+  m_particleLifes = std::vector<int>(params.maxNbParticles, -1);
 
   createProgram();
 
