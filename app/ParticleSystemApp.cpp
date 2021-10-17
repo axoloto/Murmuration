@@ -180,7 +180,7 @@ void ParticleSystemApp::checkOscMessages()
     //extreme right value is 51 0 25
     // r and g goes down then up
     // b goes up
-    float roll = std::max(std::min((m_oscReader->get_ring_orientation().z - 0.5f) * 3.0f + 1.5f, 1.0f), 0.0f);
+    float roll = m_oscReader->get_ring_orientation().z;
     rgb.x = 1.0f * (acceleration - 0.3f) / 0.7f * abs(roll - 0.5f) * 2.0f;
     rgb.y = 1.0f * (acceleration - 0.3f) / 0.7f * abs(1.0f - roll);
     if (m_oscReader->get_ring_orientation().z > 0.5f)
@@ -254,6 +254,10 @@ bool ParticleSystemApp::checkSDLStatus()
         Math::float3 pos = Math::float3(0.0f, 0.0f, 0.0f);
         Math::float3 col = Math::float3(0.0f, 1.0f, 1.0f);
         m_physicsEngine->addParticleEmitter(pos, pos, col);
+      }
+      else if (event.key.keysym.scancode == SDL_SCANCODE_DELETE)
+      {
+        m_physicsEngine->reset();
       }
       else
       {

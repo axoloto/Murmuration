@@ -45,6 +45,7 @@ Boids::Boids(ModelParams params)
     , m_scaleAlignment(1.6f)
     , m_scaleCohesion(1.45f)
     , m_scaleSeparation(1.6f)
+    , m_offsetSeparation(0.0f)
     , m_activeAlignment(true)
     , m_activeSeparation(true)
     , m_activeCohesion(true)
@@ -162,7 +163,7 @@ void Boids::updateBoidsParamsInKernel()
   boidsParams[0] = m_velocity;
   boidsParams[1] = m_activeCohesion ? m_scaleCohesion : 0.0f;
   boidsParams[2] = m_activeAlignment ? m_scaleAlignment : 0.0f;
-  boidsParams[3] = m_activeSeparation ? m_scaleSeparation : 0.0f;
+  boidsParams[3] = m_activeSeparation ? std::min((m_scaleSeparation + m_offsetSeparation), 3.0f) : 0.0f;
   boidsParams[4] = isTargetActivated() ? 1.0f : 0.0f;
   clContext.setKernelArg(KERNEL_BOIDS_RULES_GRID_2D, 3, sizeof(boidsParams), &boidsParams);
   clContext.setKernelArg(KERNEL_BOIDS_RULES_GRID_3D, 3, sizeof(boidsParams), &boidsParams);

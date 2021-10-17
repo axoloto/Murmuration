@@ -65,6 +65,13 @@ class Boids : public Model
   }
   float scaleSeparation() const { return m_scaleSeparation; }
 
+  void setOffsetSeparation(float offsetSeparation)
+  {
+    m_offsetSeparation = offsetSeparation;
+    updateBoidsParamsInKernel();
+  }
+  float offsetSeparation() const { return m_offsetSeparation; }
+
   void activateSeparation(bool separation)
   {
     m_activeSeparation = separation;
@@ -143,6 +150,7 @@ class Boids : public Model
   float m_scaleAlignment;
   float m_scaleCohesion;
   float m_scaleSeparation;
+  float m_offsetSeparation;
   int m_lifeTime;
 
   bool m_simplifiedMode;
