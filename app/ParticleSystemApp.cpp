@@ -174,7 +174,7 @@ void ParticleSystemApp::checkOscMessages()
   float tap = m_oscReader->get_ring_tap();
   float separation = tap * 3.0f;
   float acceleration = m_oscReader->get_ring_acceleration();
-  std::cout << "roll is " << m_oscReader->get_ring_orientation().z << std::endl;
+  //std::cout << "roll is " << m_oscReader->get_ring_orientation().z << std::endl;
   if (acceleration > 0.4f)
   {
       // extreme left value is 51 51 0
