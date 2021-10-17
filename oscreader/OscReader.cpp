@@ -86,8 +86,9 @@ void OscReader::ProcessMessage(const osc::ReceivedMessage& m, const IpEndpointNa
     { // parsing osc message from the ring
       // example #1 -- argument stream interface
       osc::ReceivedMessageArgumentStream args = m.ArgumentStream();
-      args >> max2c1 >> max2c2 >> max2c3 >> max2c4 >> max2c5 >> osc::EndMessage;
-     // std::cout << "received ring message with arguments : "
+      float max2c6;
+      args >> max2c1 >> max2c2 >> max2c3 >> max2c4 >> max2c5 >> max2c6 >> osc::EndMessage;
+      // std::cout << "received ring message with arguments : "
       //          << max2c1 << " " << max2c2 << " " << max2c3 << " " << max2c4 << "\n";
     }
     else
@@ -113,7 +114,6 @@ Math::float3 OscReader::get_ring_orientation()
   result.z = max2c3;
   return result;
 }
-
 
 float OscReader::get_ring_tap()
 {
