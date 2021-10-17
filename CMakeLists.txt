@@ -1,6 +1,6 @@
 
 cmake_minimum_required(VERSION 3.12)
-project(Murmuration VERSION 0.1
+project(Murmuration VERSION 0.9
                           DESCRIPTION "Minimalist real-time 3D particle system simulator"
                           HOMEPAGE_URL "https://github.com/axoloto/Murmuration")
 

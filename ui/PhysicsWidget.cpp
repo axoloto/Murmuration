@@ -172,7 +172,7 @@ void UI::PhysicsWidget::displayBoidsParameters(Physics::Boids* boidsEngine)
   if (isLifeTime)
   {
     int lifeTime = boidsEngine->lifeTime();
-    if (ImGui::SliderInt("##lifeTime", &lifeTime, 50.0f, 700.0f))
+    if (ImGui::SliderInt("##lifeTime", &lifeTime, 50.0f, 1500.0f))
     {
       boidsEngine->setLifeTime(lifeTime);
     }
@@ -277,6 +277,12 @@ void UI::PhysicsWidget::displayBoidsParameters(Physics::Boids* boidsEngine)
     if (ImGui::SliderFloat("##scaleSep", &scaleSeparation, 0.0f, 3.0f))
     {
       boidsEngine->setScaleSeparation(scaleSeparation);
+    }
+
+    float offsetSeparation = boidsEngine->offsetSeparation();
+    if (ImGui::SliderFloat("##offsetSep", &offsetSeparation, 0.0f, 3.0f))
+    {
+      boidsEngine->setOffsetSeparation(offsetSeparation);
     }
 
     ImGui::PushItemWidth(150);

@@ -14,6 +14,7 @@ enum NbParticles
 {
   P0 = 0,
   P64 = 1 << 6,
+  P128 = 1 << 7,
   P512 = 1 << 9,
   P1K = 1 << 10,
   P4K = 1 << 12,
@@ -39,6 +40,7 @@ struct NbParticlesInfo
 
 static const std::map<NbParticles, NbParticlesInfo, CompareNbParticles> ALL_NB_PARTICLES {
   { NbParticles::P64, { "64", { 8, 8 }, { 8, 8, 1 } } },
+  { NbParticles::P128, { "128", { 8, 16 }, { 8, 8, 2 } } },
   { NbParticles::P512, { "512", { 32, 16 }, { 8, 8, 8 } } },
   { NbParticles::P1K, { "1k", { 32, 32 }, { 16, 8, 8 } } },
   { NbParticles::P4K, { "4k", { 64, 64 }, { 16, 16, 16 } } },

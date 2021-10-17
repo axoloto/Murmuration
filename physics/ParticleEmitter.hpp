@@ -13,7 +13,7 @@ class ParticleEmitter
   public:
   ParticleEmitter(Dimension dim, const Math::float3& initPos, const Math::float3& initVel, const Math::float3& col)
       : m_dimension(dim)
-      , m_nbParticles(512)
+      , m_nbParticles(128)
       , m_initPos(initPos)
       , m_initVel(initVel)
       , m_color(col)
