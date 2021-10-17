@@ -188,6 +188,21 @@ __kernel void permutateFloat4(//Input
 }
 
 /*
+  Permutate float values.
+*/
+__kernel void permutateFloat(//Input
+                        const __global uint   *permutatedIndices, // 0
+                        const __global float *valToPermutate,    // 1
+                        //Output
+                              __global float *permutatedVal)     // 2
+{
+  const uint newIndex = permutatedIndices[ID];
+
+  permutatedVal[ID] = valToPermutate[newIndex];
+}
+
+
+/*
   Permutate uint values.
 */
 __kernel void permutateInt(//Input

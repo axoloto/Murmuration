@@ -17,7 +17,9 @@ void UI::PhysicsWidget::display()
     displayBoidsParameters(boidsEngine);
   }
   else if (fluidsEngine)
+  {
     displayFluidsParameters(fluidsEngine);
+  }
 }
 
 void UI::PhysicsWidget::displayFluidsParameters(Physics::Fluids* fluidsEngine)

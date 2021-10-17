@@ -381,6 +381,7 @@ bool Physics::CL::Context::unloadBufferFromDevice(std::string bufferName, size_t
 
   if (err != CL_SUCCESS)
   {
+    CL_ERROR(err, "Cannot unload buffer");
     LOG_ERROR("Cannot unload buffer {}", bufferName);
     return false;
   }
@@ -641,6 +642,9 @@ bool Physics::CL::Context::setKernelArg(std::string kernelName, cl_uint argIndex
 bool Physics::CL::Context::runKernel(std::string kernelName, size_t numGlobalWorkItems, size_t numLocalWorkItems, size_t globalOffset)
 {
   if (!m_init)
+    return false;
+
+  if (numGlobalWorkItems == 0)
     return false;
 
   auto it = m_kernelsMap.find(kernelName);

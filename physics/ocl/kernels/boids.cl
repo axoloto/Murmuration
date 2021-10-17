@@ -343,28 +343,28 @@ __kernel void updatePosWithCyclicWalls(//Input
   Update particles life time, particles with life time equals to 0 are dead
 */
 __kernel void updateLifeTime(//Input/Output
-                             __global int    *lifeTime, // 0
+                             __global float  *lifeTime, // 0
                              //Output
                              __global float4 *pos,      // 1
                              __global float4 *col)      // 2
 {
-  const int life = lifeTime[ID];
+  const float life = lifeTime[ID];
 
-  if (life == 0)
+  if (isequal(life, 0.0f))
   {
     // Going for a long long journey
     pos[ID] = (float4)(1000.0f * ABS_WALL_POS, 1000.0f * ABS_WALL_POS, 1000.0f * ABS_WALL_POS, 1.0f);
   }
-  else if(life < 200)
+  else if(isless(life, 200.0f))
   {
     // Fading away
     col[ID] *= 0.99f;
-    lifeTime[ID] -= 1;
+    lifeTime[ID] -= 1.0f;
   }
   else
   {
     // Still alive
-    lifeTime[ID] -= 1;
+    lifeTime[ID] -= 1.0f;
   }
 }
 

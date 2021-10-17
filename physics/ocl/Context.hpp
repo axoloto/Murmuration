@@ -3,6 +3,7 @@
 #define CL_HPP_MINIMUM_OPENCL_VERSION 120
 #define CL_HPP_TARGET_OPENCL_VERSION 120
 
+#include "Logging.hpp"
 #include "opencl.hpp"
 
 #include <map>
@@ -55,6 +56,18 @@ class Context
   bool releaseGLBuffers(const std::vector<std::string>& GLBufferNames) { return interactWithGLBuffers(GLBufferNames, interOpCLGL::RELEASE); }
 
   bool mapAndSendBufferToDevice(std::string bufferName, const void* bufferPtr, size_t bufferSize);
+
+  template <class T>
+  std::vector<T> printBuffer(std::string bufferName, size_t offset, size_t lengthPrinted)
+  {
+    std::vector<T> buffer(lengthPrinted);
+    if (lengthPrinted > 0)
+    {
+      LOG_INFO("Buffer name {}, offset {}, length {}, size {} ", bufferName, offset, lengthPrinted, lengthPrinted * sizeof(T));
+      unloadBufferFromDevice(bufferName, offset, lengthPrinted * sizeof(T), &buffer[0]);
+    }
+    return std::move(buffer);
+  }
 
   std::string getPlatformName() const;
   std::string getDeviceName() const;
