@@ -119,6 +119,12 @@ class Boids : public Model
   }
   bool isLifeTimeActivated() const { return m_activeLifeTime; }
 
+  void setLifeTime(int lifeTime)
+  {
+    m_lifeTime = lifeTime;
+  }
+  int lifeTime() const { return m_lifeTime; }
+
   private:
   void initBoidsParticles();
   bool createProgram() const;
@@ -137,6 +143,7 @@ class Boids : public Model
   float m_scaleAlignment;
   float m_scaleCohesion;
   float m_scaleSeparation;
+  int m_lifeTime;
 
   bool m_simplifiedMode;
   size_t m_maxNbPartsInCell;

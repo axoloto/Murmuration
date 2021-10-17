@@ -49,6 +49,7 @@ Boids::Boids(ModelParams params)
     , m_activeSeparation(true)
     , m_activeCohesion(true)
     , m_activeLifeTime(false)
+    , m_lifeTime(500)
     , m_simplifiedMode(true)
     , m_maxNbPartsInCell(3000)
     , m_radixSort(params.maxNbParticles)
@@ -182,6 +183,7 @@ void Boids::reset()
 
   m_currNbParticles = Utils::NbParticles::P0;
   m_particleLifes = std::vector<int>(m_maxNbParticles, -1);
+  m_firstParticleAliveIndex = 0;
 
   updateBoidsParamsInKernel();
 
@@ -273,18 +275,17 @@ void Boids::emitNewParticles()
   size_t particleEmitterIndex = 0;
   for (const auto& emitter : m_particleEmitters)
   {
-    size_t particleOffset = particleOffsetIndex[particleEmitterIndex++];
-
     size_t nbNewParticles = emitter.getNbParticles();
-    int lifeTime = emitter.getParticlesLifeTime();
 
-    if ((m_firstParticleAliveIndex + m_currNbParticles) >= m_particleLifes.size())
+    if ((m_firstParticleAliveIndex + m_currNbParticles + nbNewParticles) >= m_maxNbParticles)
     {
       LOG_ERROR("Cannot insert new particles");
     }
     else
     {
-      m_particleLifes.insert(m_particleLifes.cbegin() + m_firstParticleAliveIndex + m_currNbParticles, nbNewParticles, lifeTime);
+      size_t particleOffset = particleOffsetIndex[particleEmitterIndex++];
+
+      m_particleLifes.insert(m_particleLifes.cbegin() + m_firstParticleAliveIndex + m_currNbParticles, nbNewParticles, m_lifeTime);
 
       std::vector<std::array<float, 4>> tempBuffer(nbNewParticles, std::array<float, 4>({ 0.0f, 0.0f, 0.0f, 0.0f }));
 
@@ -306,7 +307,7 @@ void Boids::emitNewParticles()
 
       clContext.loadBufferFromHost("p_col", 4 * sizeof(float) * particleOffset, 4 * sizeof(float) * tempBuffer.size(), tempBuffer.data());
 
-      std::vector<float> newParticlesLife(nbNewParticles, (float)lifeTime);
+      std::vector<float> newParticlesLife(nbNewParticles, (float)m_lifeTime);
       clContext.loadBufferFromHost("p_lifeTime", sizeof(float) * particleOffset, sizeof(float) * newParticlesLife.size(), newParticlesLife.data());
 
       m_currNbParticles += nbNewParticles;
