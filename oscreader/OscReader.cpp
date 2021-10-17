@@ -36,7 +36,7 @@ void OscReader::stop()
 
 void OscReader::ProcessMessage(const osc::ReceivedMessage& m, const IpEndpointName& remoteEndpoint)
 {
-  LOG_INFO("Receiving OSC input with thread {} ", std::hash<std::thread::id> {}(std::this_thread::get_id()));
+  //LOG_INFO("Receiving OSC input with thread {} ", std::hash<std::thread::id> {}(std::this_thread::get_id()));
   std::lock_guard<std::mutex> guard(myMutex);
   (void)remoteEndpoint; // suppress unused parameter warning
   try
@@ -86,7 +86,7 @@ void OscReader::ProcessMessage(const osc::ReceivedMessage& m, const IpEndpointNa
     { // parsing osc message from the ring
       // example #1 -- argument stream interface
       osc::ReceivedMessageArgumentStream args = m.ArgumentStream();
-      args >> max2c1 >> max2c2 >> max2c3 >> max2c4 >> osc::EndMessage;
+      args >> max2c1 >> max2c2 >> max2c3 >> max2c4 >> max2c5 >> osc::EndMessage;
      // std::cout << "received ring message with arguments : "
       //          << max2c1 << " " << max2c2 << " " << max2c3 << " " << max2c4 << "\n";
     }

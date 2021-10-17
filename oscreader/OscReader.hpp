@@ -27,9 +27,9 @@ class OscReader : public osc::OscPacketListener
   private:
   std::mutex myMutex;
   //max2c args
-  float max2c1 = 0.0f; // ring orientation 1
-  float max2c2 = 0.0f; // ring orientation 2
-  float max2c3 = 0.0f; // ring orientation 3
+  float max2c1 = 0.5f; // ring orientation 1
+  float max2c2 = 0.5f; // ring orientation 2
+  float max2c3 = 0.5f; // ring orientation 3
   float max2c4 = 0.0f; //tap
   float max2c5 = 0.0f; // acceleration
   void run();

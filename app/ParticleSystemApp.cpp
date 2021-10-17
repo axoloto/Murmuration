@@ -167,24 +167,33 @@ void ParticleSystemApp::checkOscMessages()
   auto* boidsEngine = dynamic_cast<Physics::Boids*>(m_physicsEngine.get());
   if (!boidsEngine)
     return;
-  Math::float3 orientation = m_oscReader->get_ring_orientation();
+  Math::float3 orientation = (m_oscReader->get_ring_orientation() - Math::float3(0.5f, 0.5f, 0.5f)) * (float) Utils::BOX_SIZE;
   Math::float3 vel = - orientation / 100.0f;
   Math::float3 rgb;
-  rgb.x = 1.0f;
-  rgb.y = 1.0f;
-  rgb.z = 1.0f;
   int lifeTime = 300;
   float tap = m_oscReader->get_ring_tap();
-  float separation = tap *3.0f;
+  float separation = tap * 3.0f;
   float acceleration = m_oscReader->get_ring_acceleration();
-  if (tap > 0.1)
+  //std::cout << "roll is " << m_oscReader->get_ring_orientation().z << std::endl;
+  if (acceleration > 0.4f)
   {
+      // extreme left value is 51 51 0
+      //extreme right value is 51 0 25
+      // r and g goes down then up
+      // b goes up
+    float roll = std::max(std::min((m_oscReader->get_ring_orientation().z - 0.5f) * 3.0f + 1.5f , 1.0f), 0.0f);
+    rgb.x = 1.0f * (acceleration - 0.3f)/ 0.7f * abs(roll - 0.5f) * 2.0f;
+    rgb.y = 1.0f * (acceleration - 0.3f) / 0.7f * abs(1.0f - roll);
+    if (m_oscReader->get_ring_orientation().z > 0.5f)
+      rgb.z = 1.0f * (acceleration - 0.3f) / 0.7f * (1.5f - roll);
+    else
+      rgb.z = 1.0f * (acceleration - 0.3f) / 0.7f * (roll) * 2.0f;
     m_physicsEngine->addParticleEmitter(orientation, vel, rgb, lifeTime);
   }
-  boidsEngine->setScaleSeparation(acceleration);
+  boidsEngine->setScaleSeparation(acceleration *2.0f);
   //boidsEngine->setScaleCohesion(separation);
- // boidsEngine->setScaleAlignement(separation);
-  //m_physicsEngine->setVelocity(listNotes.back().getBeat());
+  boidsEngine->setScaleAlignment(m_oscReader->get_ring_orientation().x * 3.0f);
+  m_physicsEngine->setVelocity(0.25f +acceleration / 8.0f);
 }
 
 bool ParticleSystemApp::checkSDLStatus()
