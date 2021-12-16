@@ -6,7 +6,8 @@ Main differences compared to RealTimeParticles :
 - Fluid model is deactivated
 - Boids are generated on command through MIDI and OSC protocols
 - MIDI and OSC readers are running on their own threads, read/write is thread-safe
-- Particles have a lifespan and will disappear when they reach their end of life! GPU buffering allocation remains static, CPU allocator is smart enough to pick free/dead slots to generate new particles.
+- Particles have a lifespan and will disappear when they reach their end of life
+- Implementation of a circular buffer on CPU side for dynamic particle generation, GPU buffering allocation remains static 
 
 The project behind this version was quite unique: 
 
